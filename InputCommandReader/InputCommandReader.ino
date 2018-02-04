@@ -17,9 +17,9 @@ void com1Command(InputCommandParam** params) {
   Serial.println(params[2]->asString());
 }
 
-InputCommandDefinition* commandDefinitions[] = {
-  new InputCommandDefinition("mem", 0, &memCommand),
-  new InputCommandDefinition("com1", 3, &com1Command),
+InputCommand* commandDefinitions[] = {
+  new InputCommand("mem", 0, &memCommand),
+  new InputCommand("com1", 3, &com1Command),
   NULL
 };
 

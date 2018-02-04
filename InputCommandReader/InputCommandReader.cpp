@@ -3,32 +3,26 @@
 
 #define INPUT_COMMAND_MAX_LEN 20
 
-struct InputCommand {
+struct InputCommandData {
   char* pattern;
   InputCommandParam* params[INPUT_COMMAND_MAX_PARAMS];
   int paramsCount;
   void (*commandFunction)(InputCommandParam** params);
 };
 
-InputCommandDefinition** _commandDefinitions;
+InputCommand** _commandDefinitions;
 
 int _inputBufferIndex = 0;
 char _serialCommandBuffer[INPUT_COMMAND_MAX_LEN];
 
-InputCommandDefinition::InputCommandDefinition(char* aPattern, int aParamsCount, void (*aCommandFunction)(InputCommandParam** params)) {
-  pattern = aPattern;
-  paramsCount = aParamsCount;
-  commandFunction = aCommandFunction;
-}
-
-void InputCommandReader::begin(int baud, InputCommandDefinition** aCommandDefinitions) {
+void InputCommandReader::begin(int baud, InputCommand** aCommandDefinitions) {
   _commandDefinitions = aCommandDefinitions;
   Serial.begin(baud);
 }
 
-InputCommandDefinition* findCommandDefinition(char* opCodeString) {
+InputCommand* findCommandDefinition(char* opCodeString) {
   int definitionIndex = 0;
-  InputCommandDefinition* definition = NULL;
+  InputCommand* definition = NULL;
   while (!definition && _commandDefinitions[definitionIndex]) {
     if (strcmp(_commandDefinitions[definitionIndex]->pattern, opCodeString) == 0) {
       definition = _commandDefinitions[definitionIndex];
@@ -39,7 +33,7 @@ InputCommandDefinition* findCommandDefinition(char* opCodeString) {
   return definition;
 }
 
-void freeCommand(InputCommand* command) {
+void freeCommand(InputCommandData* command) {
   delete[] command->pattern;
   for (int i = 0; i < command->paramsCount; i++) {
     delete command->params[i];
@@ -47,13 +41,13 @@ void freeCommand(InputCommand* command) {
   delete command;
 }
 
-InputCommand* createCommand(char* commandString) {
+InputCommandData* createCommand(char* commandString) {
   char* token = strtok (commandString, " ");
   if (token != NULL) {
-    InputCommandDefinition* commandDefinition = findCommandDefinition(token);
+    InputCommand* commandDefinition = findCommandDefinition(token);
     if (commandDefinition) {
 
-      InputCommand* command = new InputCommand;
+      InputCommandData* command = new InputCommandData;
       command->pattern = new char[strlen(token) + 1];
       strcpy(command->pattern, token);
 
@@ -86,7 +80,7 @@ void processInputChar(char inChar) {
     _serialCommandBuffer[_inputBufferIndex++] = inChar;
   } else {
     _serialCommandBuffer[_inputBufferIndex++] = NULL;
-    InputCommand* command = createCommand(_serialCommandBuffer);
+    InputCommandData* command = createCommand(_serialCommandBuffer);
     if (command != NULL) {
       command->commandFunction(command->params);
       freeCommand(command);
