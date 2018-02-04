@@ -62,7 +62,7 @@ To get started, just copy the following example.
 # Complete example:
 
 ``` c++
-#include "InputCommandReader.h"
+#include <InputCommandReader.h>
 
 InputCommandReader inputCommandReader;
 
