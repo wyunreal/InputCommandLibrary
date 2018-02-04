@@ -1,14 +1,8 @@
 #include "InputCommandReader.h"
-#include <MemoryFree.h>
 
 InputCommandReader inputCommandReader;
 
-void memCommand(InputCommandParam** params) {
-  Serial.print("freeMemory()=");
-  Serial.println(freeMemory());
-}
-
-void com1Command(InputCommandParam** params) {
+void commandWithParams(InputCommandParam** params) {
   Serial.print("command 1: ");
   Serial.print(params[0]->asInt());
   Serial.print(" ");
@@ -17,9 +11,13 @@ void com1Command(InputCommandParam** params) {
   Serial.println(params[2]->asString());
 }
 
+void commandWithNoParams(InputCommandParam** params) {
+  Serial.println("command 2");
+}
+
 InputCommand* commandDefinitions[] = {
-  new InputCommand("mem", 0, &memCommand),
-  new InputCommand("com1", 3, &com1Command),
+  new InputCommand("com1", 3, &commandWithParams),
+  new InputCommand("com2", 0, &commandWithNoParams),
   NULL
 };
 
@@ -31,5 +29,4 @@ void setup() {
 void loop() {
   // your sketch can do here its main tasks
 }
-
 
