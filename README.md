@@ -21,9 +21,9 @@ To use this library, just download as ZIP, unzip and copy the **Input** folder t
 First, you need to include the library and and create an instance:
 
 ``` c++
-#include "InputCommandReader.h"
+#include "Input.h"
 
-InputCommandReader inputCommandReader;
+Input input;
 ```
 
 Each command should have a function with following signature:
@@ -47,7 +47,7 @@ where **x** is the index of required parameter.
 Last, you need to start the library by calling:
 
 ``` c++
-inputCommandReader.begin(bauds, commandDefinitions);
+input.begin(bauds, commandDefinitions);
 ```
 
 where:
