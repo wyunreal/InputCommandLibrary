@@ -21,7 +21,7 @@ To use this library, just download as ZIP, unzip and copy the **Input** folder t
 First, you need to include the library and and create an instance:
 
 ``` c++
-#include "Input.h"
+#include <Input.h>
 
 Input input;
 ```
