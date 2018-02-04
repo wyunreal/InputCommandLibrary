@@ -1,6 +1,6 @@
-#include "InputCommandReader.h"
+#include "Input.h"
 
-InputCommandReader inputCommandReader;
+Input input;
 
 void commandWithParams(InputCommandParam** params) {
   Serial.print("command 1: ");
@@ -23,7 +23,7 @@ InputCommand* commandDefinitions[] = {
 
 void setup() {
   // initialize input command reader with main Serial at 9600 bauds
-  inputCommandReader.begin(9600, commandDefinitions);
+  input.begin(9600, commandDefinitions);
 }
 
 void loop() {

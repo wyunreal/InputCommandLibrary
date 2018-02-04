@@ -1,4 +1,4 @@
-#include "InputCommandReader.h"
+#include "Input.h"
 #include <Arduino.h>
 
 #define INPUT_COMMAND_MAX_LEN 20
@@ -15,7 +15,7 @@ InputCommand** _commandDefinitions;
 int _inputBufferIndex = 0;
 char _serialCommandBuffer[INPUT_COMMAND_MAX_LEN];
 
-void InputCommandReader::begin(int baud, InputCommand** aCommandDefinitions) {
+void Input::begin(int baud, InputCommand** aCommandDefinitions) {
   _commandDefinitions = aCommandDefinitions;
   Serial.begin(baud);
 }
@@ -52,7 +52,7 @@ InputCommandData* createCommand(char* commandString) {
       strcpy(command->pattern, token);
 
       command->commandFunction = commandDefinition->commandFunction;
-      
+
       token = strtok (NULL, " ");
       int paramIndex = 0;
       while (token != 0 && paramIndex < commandDefinition->paramsCount && paramIndex < INPUT_COMMAND_MAX_PARAMS)
@@ -60,7 +60,7 @@ InputCommandData* createCommand(char* commandString) {
         command->params[paramIndex] = new InputCommandParam(token);
 
         paramIndex++;
-        token = strtok (NULL, " ");      
+        token = strtok (NULL, " ");
       }
       command->paramsCount = paramIndex;
 

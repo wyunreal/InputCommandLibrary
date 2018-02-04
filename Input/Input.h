@@ -5,7 +5,7 @@
 
 #define INPUT_COMMAND_MAX_PARAMS 3
 
-class InputCommandReader {
+class Input {
   public:
     void begin(int baud, InputCommand** aCommandDefinitions);
 };
