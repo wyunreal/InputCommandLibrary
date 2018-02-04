@@ -18,7 +18,48 @@ CommandOpCode param1 param2 param3 ...
 
 To use this library, just download as ZIP, unzip and copy to your arduino's library folder.
 
-Example:
+First, you need to include the library and and create an instance:
+
+``` c++
+#include "InputCommandReader.h"
+
+InputCommandReader inputCommandReader;
+```
+
+Each command should have a function with following signature:
+
+``` c++
+void commandWithParams(InputCommandParam** params) {
+	...
+}
+```
+
+Parameters will be provided to the function on the **InputCommandParam*** array, each instance on this array will provide a method for the type required (int, float or string):
+
+``` c++
+params[x]->asInt();
+params[x]->asFloat();
+params[x]->asString();
+```
+
+where **x** is the index of required parameter.
+
+Last, you need to start the library by calling:
+
+``` c++
+inputCommandReader.begin(bauds, commandDefinitions);
+```
+
+where:
+- **bauds** represents the baudRate you want to open Serial with.
+- **commandDefinitions**: is an array of InputCommand instances, used to define each command. **InputCommand** constructor requires 3 params:
+- - **commandOpCode**: op code of the param, used to identify the param received on the Serial interface.
+- - **paramsCount**: number of parameters used by the command.
+- - **commandFunction**: reference to the function containing the code for the param.
+
+To get started, just copy the following example.
+
+# Complete example:
 
 ``` c++
 #include "InputCommandReader.h"
