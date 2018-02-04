@@ -9,7 +9,7 @@ class InputCommandParam {
     ~InputCommandParam();
     char* asString();
     int asInt();
-    float asFloat(); 
+    float asFloat();
 };
 
 #endif
