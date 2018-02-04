@@ -62,7 +62,7 @@ To get started, just copy the following example.
 # Complete example:
 
 ``` c++
-#include <InputCommandReader.h>
+#include "InputCommandReader.h"
 
 InputCommandReader inputCommandReader;
 
@@ -76,12 +76,12 @@ void commandWithParams(InputCommandParam** params) {
 }
 
 void commandWithNoParams(InputCommandParam** params) {
-  Serial.print("command 2: ");
+  Serial.println("command 2");
 }
 
 InputCommand* commandDefinitions[] = {
-  new InputCommand("com1", 0, &commandWithParams),
-  new InputCommand("com2", 3, &commandWithNoParams),
+  new InputCommand("com1", 3, &commandWithParams),
+  new InputCommand("com2", 0, &commandWithNoParams),
   NULL
 };
 
