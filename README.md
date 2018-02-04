@@ -80,8 +80,8 @@ void commandWithNoParams(InputCommandParam** params) {
 }
 
 InputCommand* commandDefinitions[] = {
-  new InputCommand("mem", 0, &commandWithParams),
-  new InputCommand("com1", 3, &commandWithNoParams),
+  new InputCommand("com1", 0, &commandWithParams),
+  new InputCommand("com2", 3, &commandWithNoParams),
   NULL
 };
 
