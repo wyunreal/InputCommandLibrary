@@ -16,7 +16,7 @@ CommandOpCode param1 param2 param3 ...
 
 # Using the library:
 
-To use this library, just download as ZIP, unzip and copy to your arduino's library folder.
+To use this library, just download as ZIP, unzip and copy the **Input** folder to your arduino's library folder.
 
 First, you need to include the library and and create an instance:
 
