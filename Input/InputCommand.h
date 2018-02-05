@@ -3,7 +3,6 @@
 
 #include "Arduino.h"
 #include "CommandParam.h"
-#include "CommandResponse.h"
 
 class InputCommand {
   public:
