@@ -29,12 +29,12 @@ Input input;
 Each command should have a function with following signature:
 
 ``` c++
-void commandWithParams(InputCommandParam** params) {
+void commandWithParams(CommandParam** params, Stream* response) {
 	...
 }
 ```
 
-Parameters will be provided to the function on the **InputCommandParam*** array, each instance on this array will provide a method for the type required (int, float or string):
+Parameters will be provided to the function on the **CommandParam*** array, each instance on this array will provide a method for the type required (int, float or string):
 
 ``` c++
 params[x]->asInt();
@@ -43,6 +43,8 @@ params[x]->asString();
 ```
 
 where **x** is the index of required parameter.
+
+Also, command functions will be able printing its response through the **response** parameter. This parameter is of type **Stream**, which have all **Serial** methods for printing.
 
 Last, you need to start the library by calling:
 
@@ -82,17 +84,19 @@ To get started, just copy the following example.
 
 Input input;
 
-void commandWithParams(InputCommandParam** params) {
-  Serial.print("command 1: ");
-  Serial.print(params[0]->asInt());
-  Serial.print(" ");
-  Serial.print(params[1]->asFloat());
-  Serial.print(" ");
-  Serial.println(params[2]->asString());
+void commandWithParams(CommandParam** params, Stream* response) {
+  // do command business here and then fullfill the command response:
+  response->print("command 1: ");
+  response->print(params[0]->asInt());
+  response->print(" ");
+  response->print(params[1]->asFloat());
+  response->print(" ");
+  response->println(params[2]->asString());
 }
 
-void commandWithNoParams(InputCommandParam** params) {
-  Serial.println("command 2");
+void commandWithNoParams(CommandParam** params, Stream* response) {
+  // do command business here and then fullfill the command response:
+  response->println("command 2");
 }
 
 InputCommand* commandDefinitions[] = defineCommands(
