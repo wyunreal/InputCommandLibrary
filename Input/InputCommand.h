@@ -1,14 +1,16 @@
 #ifndef INPUT_COMMAND_H
 #define INPUT_COMMAND_H
 
-#include "InputCommandParam.h"
+#include "Arduino.h"
+#include "CommandParam.h"
+#include "CommandResponse.h"
 
 class InputCommand {
   public:
     char* pattern;
     int paramsCount;
-    void (*commandFunction)(InputCommandParam** params);
-    InputCommand(char* aPattern, int aParamsCount, void (*aCommandFunction)(InputCommandParam** params));
+    void (*commandFunction)(CommandParam** params);
+    InputCommand(char* aPattern, int aParamsCount, void (*aCommandFunction)(CommandParam** params, Stream* response));
 };
 
 #endif

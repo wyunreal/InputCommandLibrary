@@ -2,17 +2,19 @@
 
 Input input;
 
-void commandWithParams(InputCommandParam** params) {
-  Serial.print("command 1: ");
-  Serial.print(params[0]->asInt());
-  Serial.print(" ");
-  Serial.print(params[1]->asFloat());
-  Serial.print(" ");
-  Serial.println(params[2]->asString());
+void commandWithParams(CommandParam** params, Stream* response) {
+  // do command business here and then fullfill the command response:
+  response->print("command 1: ");
+  response->print(params[0]->asInt());
+  response->print(" ");
+  response->print(params[1]->asFloat());
+  response->print(" ");
+  response->println(params[2]->asString());
 }
 
-void commandWithNoParams(InputCommandParam** params) {
-  Serial.println("command 2");
+void commandWithNoParams(CommandParam** params, Stream* response) {
+  // do command business here and then fullfill the command response:
+  response->println("command 2");
 }
 
 InputCommand* commandDefinitions[] = defineCommands(

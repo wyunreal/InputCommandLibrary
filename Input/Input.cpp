@@ -5,9 +5,10 @@
 
 struct InputCommandData {
   char* pattern;
-  InputCommandParam* params[INPUT_COMMAND_MAX_PARAMS];
+  CommandParam* params[INPUT_COMMAND_MAX_PARAMS];
   int paramsCount;
-  void (*commandFunction)(InputCommandParam** params);
+  void (*commandFunction)(CommandParam** params, Stream* response);
+  Stream* response;
 };
 
 InputCommand** _commandDefinitions;
@@ -52,12 +53,13 @@ InputCommandData* createCommand(char* commandString) {
       strcpy(command->pattern, token);
 
       command->commandFunction = commandDefinition->commandFunction;
+      command->response = &Serial;
 
       token = strtok (NULL, " ");
       int paramIndex = 0;
       while (token != 0 && paramIndex < commandDefinition->paramsCount && paramIndex < INPUT_COMMAND_MAX_PARAMS)
       {
-        command->params[paramIndex] = new InputCommandParam(token);
+        command->params[paramIndex] = new CommandParam(token);
 
         paramIndex++;
         token = strtok (NULL, " ");
@@ -82,7 +84,7 @@ void processInputChar(char inChar) {
     _serialCommandBuffer[_inputBufferIndex++] = NULL;
     InputCommandData* command = createCommand(_serialCommandBuffer);
     if (command != NULL) {
-      command->commandFunction(command->params);
+      command->commandFunction(command->params, command->response);
       freeCommand(command);
     }
     _inputBufferIndex = 0;
