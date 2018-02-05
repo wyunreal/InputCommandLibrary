@@ -79,11 +79,10 @@ void commandWithNoParams(InputCommandParam** params) {
   Serial.println("command 2");
 }
 
-InputCommand* commandDefinitions[] = {
-  new InputCommand("com1", 3, &commandWithParams),
-  new InputCommand("com2", 0, &commandWithNoParams),
-  NULL
-};
+InputCommand* commandDefinitions[] = defineCommands(
+  command("com1", 3, &commandWithParams),
+  command("com2", 0, &commandWithNoParams)
+);
 
 void setup() {
   // initialize input command reader with main Serial at 9600 bauds
