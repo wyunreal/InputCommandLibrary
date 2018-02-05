@@ -57,6 +57,22 @@ where:
 - - **paramsCount**: number of parameters used by the command.
 - - **commandFunction**: reference to the function containing the code for the param.
 
+In order to determine the number of defined commands, the library requires you to pass a NULL value as last element in the commands definition array. In order to simplify this, the library provides two macros:
+
+``` c++
+defineCommands(...)
+command(opCode, paramsCount, &commandFunction)
+```
+
+This macros can be used as follow:
+
+``` c++
+InputCommand* commandDefinitions[] = defineCommands(
+  command("com1", 3, &commandWithParams),
+  command("com2", 0, &commandWithNoParams)
+);
+```
+
 To get started, just copy the following example.
 
 # Complete example:
