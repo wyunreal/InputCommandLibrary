@@ -66,7 +66,7 @@ defineCommands(...)
 command(opCode, paramsCount, &commandFunction)
 ```
 
-This macros can be used as follow:
+These macros can be used as follow:
 
 ``` c++
 InputCommand* commandDefinitions[] = defineCommands(
