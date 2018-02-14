@@ -78,7 +78,7 @@ InputCommandData* createCommand(char* commandString) {
 }
 
 void processInputChar(char inChar) {
-  if (inChar != 13) {
+  if (inChar != 13 && inChar != 10) {
     _serialCommandBuffer[_inputBufferIndex++] = inChar;
   } else {
     _serialCommandBuffer[_inputBufferIndex++] = NULL;
