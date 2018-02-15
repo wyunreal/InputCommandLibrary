@@ -77,6 +77,15 @@ InputCommandData* createCommand(char* commandString) {
   return NULL;
 }
 
+void Input::trigger(char* commandLine) {
+  strcpy(_serialCommandBuffer, commandLine);
+  InputCommandData* command = createCommand(_serialCommandBuffer);
+  if (command != NULL) {
+    command->commandFunction(command->params, command->response);
+    freeCommand(command);
+  }
+}
+
 void processInputChar(char inChar) {
   if (inChar != 13 && inChar != 10) {
     _serialCommandBuffer[_inputBufferIndex++] = inChar;

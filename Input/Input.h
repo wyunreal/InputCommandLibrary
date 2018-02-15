@@ -11,6 +11,7 @@
 class Input {
   public:
     void begin(int baud, InputCommand** aCommandDefinitions);
+    void trigger(char* commandLine);
 };
 
 #endif
