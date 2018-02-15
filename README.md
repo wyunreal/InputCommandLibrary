@@ -114,6 +114,16 @@ void loop() {
 }
 ```
 
+# Triggering commands manually
+
+Sometimes, you need to manually trigger a command manually (in the code of you sketch), to do so, you can call the trigger method:
+
+```
+void Input::trigger (char * commandLine);
+```
+
+This method will behave like if the command represented by the provided command line get read from Serial.
+
 # Contribute
 
 If you want to contribute, just do a pull request here at Github !
