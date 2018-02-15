@@ -123,7 +123,7 @@ void Input::trigger (char * commandLine);
 ```
 
 This method will behave like if the command represented by the provided command line get read from Serial.
-
+**Warning:** This method can NOT be executed inside a command handler. If done, memory will leak.
 # Contribute
 
 If you want to contribute, just do a pull request here at Github !
