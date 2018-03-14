@@ -6,10 +6,10 @@
 
 class InputCommand {
   public:
-    char* pattern;
+    const char* pattern;
     int paramsCount;
-    void (*commandFunction)(CommandParam** params);
-    InputCommand(char* aPattern, int aParamsCount, void (*aCommandFunction)(CommandParam** params, Stream* response));
+    void (*commandFunction)(CommandParam** params, Stream* response);
+    InputCommand(const char* aPattern, int aParamsCount, void (*aCommandFunction)(CommandParam** params, Stream* response));
 };
 
 #endif
