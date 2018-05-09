@@ -10,6 +10,9 @@
 
 class Input {
   public:
+    Input();
+    Input(int commandsMaxLength);
+    ~Input();
     void begin(int baud, InputCommand** aCommandDefinitions);
     void trigger(const char* commandLine);
 };

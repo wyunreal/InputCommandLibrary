@@ -1,7 +1,7 @@
 #include "Input.h"
 #include <Arduino.h>
 
-#define INPUT_COMMAND_MAX_LEN 20
+#define DEFAULT_COMMANDS_MAX_LENGTH 20
 
 struct InputCommandData {
   char* pattern;
@@ -13,8 +13,23 @@ struct InputCommandData {
 
 InputCommand** _commandDefinitions;
 
+int _commandsMaxLength = DEFAULT_COMMANDS_MAX_LENGTH;
 int _inputBufferIndex = 0;
-char _serialCommandBuffer[INPUT_COMMAND_MAX_LEN];
+char* _serialCommandBuffer;
+
+Input::Input() {
+  _commandsMaxLength = DEFAULT_COMMANDS_MAX_LENGTH;
+  _serialCommandBuffer = new char[_commandsMaxLength];
+}
+
+Input::Input(int commandsMaxLength) {
+  _commandsMaxLength = commandsMaxLength;
+  _serialCommandBuffer = new char[_commandsMaxLength];
+}
+
+Input::~Input() {
+  delete[] _serialCommandBuffer;
+}
 
 void Input::begin(int baud, InputCommand** aCommandDefinitions) {
   _commandDefinitions = aCommandDefinitions;
@@ -86,25 +101,32 @@ void Input::trigger(const char* commandLine) {
   }
 }
 
-void processInputChar(char inChar) {
-  if (inChar != 13 && inChar != 10) {
-    _serialCommandBuffer[_inputBufferIndex++] = inChar;
-  } else {
-    _serialCommandBuffer[_inputBufferIndex++] = 0;
-    InputCommandData* command = createCommand(_serialCommandBuffer);
-    if (command != NULL) {
-      command->commandFunction(command->params, command->response);
-      freeCommand(command);
-    }
+bool processInputChar(char inChar) {
+  if (_inputBufferIndex >= _commandsMaxLength - 1) {
     _inputBufferIndex = 0;
+    return true;
+  } else {
+    if (inChar != 13 && inChar != 10) {
+      _serialCommandBuffer[_inputBufferIndex++] = inChar;
+    } else {
+      _serialCommandBuffer[_inputBufferIndex++] = 0;
+      InputCommandData* command = createCommand(_serialCommandBuffer);
+      if (command != NULL) {
+        command->commandFunction(command->params, command->response);
+        freeCommand(command);
+      }
+      _inputBufferIndex = 0;
+    }
+    return false;
   }
 }
 
 void serialEvent() {
+  bool bufferIsFull;
   while (Serial.available()) {
     char inChar = (char)Serial.read();
-    processInputChar(inChar);
-    if (inChar == 13) {
+    bufferIsFull = processInputChar(inChar);
+    if (bufferIsFull || inChar == 13) {
       return;
     }
   }
