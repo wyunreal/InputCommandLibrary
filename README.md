@@ -26,6 +26,15 @@ First, you need to include the library and and create an instance:
 Input input;
 ```
 
+Above instance will use a buffer of 20 chars, so, max length for command + params string will be 19 chars. If you need a longer buffer, just use pass desired size in constructor:
+
+``` c++
+#include <Input.h>
+
+Input input(42);
+```
+Above instance will use a buffer of 42 chars.
+
 Each command should have a function with following signature:
 
 ``` c++
