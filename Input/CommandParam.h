@@ -9,6 +9,7 @@ class CommandParam {
     ~CommandParam();
     char* asString();
     int asInt();
+    long asLongInt();
     float asFloat();
 };
 

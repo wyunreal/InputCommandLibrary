@@ -20,6 +20,10 @@ int CommandParam::asInt() {
   return atoi(value);
 }
 
+long CommandParam::asLongInt() {
+  return atol(value);
+}
+
 float CommandParam::asFloat() {
   return atof(value);
 }
