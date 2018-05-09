@@ -47,6 +47,7 @@ Parameters will be provided to the function on the **CommandParam*** array, each
 
 ``` c++
 params[x]->asInt();
+params[x]->asLongInt();
 params[x]->asFloat();
 params[x]->asString();
 ```
