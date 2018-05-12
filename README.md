@@ -4,7 +4,7 @@ Simple Arduino Lib for handling Serial input as commands
 
 By using this library you will enable a basic command parser on the main Serial interface of the arduino (the one used to debug while connected to PC through USB).
 
-Each line on the Serial interface will be interpreted as a command, comosed by:
+Each line on the Serial interface will be interpreted as a command, composed by:
 
 ```
 CommandOpCode param1 param2 param3 ...
@@ -79,11 +79,12 @@ command(opCode, paramsCount, &commandFunction)
 These macros can be used as follow:
 
 ``` c++
-InputCommand* commandDefinitions[] = defineCommands(
+const InputCommand* commandDefinitions[] PROGMEM = defineCommands(
   command("com1", 3, &commandWithParams),
   command("com2", 0, &commandWithNoParams)
 );
 ```
+Take into account the library expects the commands definition be stored in program memory (to save precious RAM). Thats why the use of **const** and **PROGMEM** are mandatory in above code. 
 
 To get started, just copy the following example.
 
@@ -109,7 +110,7 @@ void commandWithNoParams(CommandParam** params, Stream* response) {
   response->println("command 2");
 }
 
-InputCommand* commandDefinitions[] = defineCommands(
+const InputCommand* commandDefinitions[] PROGMEM = defineCommands(
   command("com1", 3, &commandWithParams),
   command("com2", 0, &commandWithNoParams)
 );
@@ -124,16 +125,6 @@ void loop() {
 }
 ```
 
-# Triggering commands manually
-
-Sometimes, you need to manually trigger a command manually (in the code of you sketch), to do so, you can call the trigger method:
-
-```
-void Input::trigger (char * commandLine);
-```
-
-This method will behave like if the command represented by the provided command line get read from Serial.
-**Warning:** This method can NOT be executed inside a command handler. If done, memory will leak.
 # Contribute
 
 If you want to contribute, just do a pull request here at Github !
