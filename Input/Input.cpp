@@ -4,14 +4,15 @@
 #define DEFAULT_COMMANDS_MAX_LENGTH 20
 
 struct InputCommandData {
-  char* pattern;
   CommandParam* params[INPUT_COMMAND_MAX_PARAMS];
   int paramsCount;
   void (*commandFunction)(CommandParam** params, Stream* response);
   Stream* response;
 };
 
-InputCommand** _commandDefinitions;
+InputCommand* _commandDefinitions;
+
+InputCommand currentCommandDefinition;
 
 int _commandsMaxLength = DEFAULT_COMMANDS_MAX_LENGTH;
 int _inputBufferIndex = 0;
@@ -31,26 +32,30 @@ Input::~Input() {
   delete[] _serialCommandBuffer;
 }
 
-void Input::begin(int baud, InputCommand** aCommandDefinitions) {
+void Input::begin(int baud, InputCommand* aCommandDefinitions) {
   _commandDefinitions = aCommandDefinitions;
   Serial.begin(baud);
 }
 
-InputCommand* findCommandDefinition(char* opCodeString) {
+bool findCommandDefinition(char* opCodeString) {
   int definitionIndex = 0;
-  InputCommand* definition = NULL;
-  while (!definition && _commandDefinitions[definitionIndex]) {
-    if (strcmp(_commandDefinitions[definitionIndex]->pattern, opCodeString) == 0) {
-      definition = _commandDefinitions[definitionIndex];
+  int found = false;
+  while (true) {
+    memcpy_P (&currentCommandDefinition, &_commandDefinitions[definitionIndex], sizeof currentCommandDefinition);
+    if (currentCommandDefinition.paramsCount == -1) {
+      break;
+    }
+    if (strcmp(currentCommandDefinition.pattern, opCodeString) == 0) {
+      found = true;
+      break;
     }
     definitionIndex++;
   };
 
-  return definition;
+  return found;
 }
 
 void freeCommand(InputCommandData* command) {
-  delete[] command->pattern;
   for (int i = 0; i < command->paramsCount; i++) {
     delete command->params[i];
   }
@@ -60,19 +65,15 @@ void freeCommand(InputCommandData* command) {
 InputCommandData* createCommand(char* commandString) {
   char* token = strtok (commandString, " ");
   if (token != NULL) {
-    InputCommand* commandDefinition = findCommandDefinition(token);
-    if (commandDefinition) {
-
+    if (findCommandDefinition(token)) {
       InputCommandData* command = new InputCommandData;
-      command->pattern = new char[strlen(token) + 1];
-      strcpy(command->pattern, token);
 
-      command->commandFunction = commandDefinition->commandFunction;
+      command->commandFunction = currentCommandDefinition.commandFunction;
       command->response = &Serial;
 
       token = strtok (NULL, " ");
       int paramIndex = 0;
-      while (token != 0 && paramIndex < commandDefinition->paramsCount && paramIndex < INPUT_COMMAND_MAX_PARAMS)
+      while (token != 0 && paramIndex < currentCommandDefinition.paramsCount && paramIndex < INPUT_COMMAND_MAX_PARAMS)
       {
         command->params[paramIndex] = new CommandParam(token);
 
@@ -81,7 +82,7 @@ InputCommandData* createCommand(char* commandString) {
       }
       command->paramsCount = paramIndex;
 
-      if (command->paramsCount == commandDefinition->paramsCount) {
+      if (command->paramsCount == currentCommandDefinition.paramsCount) {
         return command;
       } else {
         freeCommand(command);
@@ -90,15 +91,6 @@ InputCommandData* createCommand(char* commandString) {
   }
 
   return NULL;
-}
-
-void Input::trigger(const char* commandLine) {
-  strcpy(_serialCommandBuffer, commandLine);
-  InputCommandData* command = createCommand(_serialCommandBuffer);
-  if (command != NULL) {
-    command->commandFunction(command->params, command->response);
-    freeCommand(command);
-  }
 }
 
 bool processInputChar(char inChar) {

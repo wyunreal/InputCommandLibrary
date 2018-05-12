@@ -17,7 +17,7 @@ void commandWithNoParams(CommandParam** params, Stream* response) {
   response->println("command 2");
 }
 
-InputCommand* commandDefinitions[] = defineCommands(
+const InputCommand commandDefinitions[] PROGMEM = defineCommands(
   command("com1", 3, &commandWithParams),
   command("com2", 0, &commandWithNoParams)
 );
