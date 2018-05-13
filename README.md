@@ -63,9 +63,9 @@ input.begin(bauds, commandDefinitions);
 where:
 - **bauds** represents the baudRate you want to open Serial with.
 - **commandDefinitions**: is an array of **InputCommand** instances, used to define each command. **InputCommand** constructor requires 3 params:
-- - **commandOpCode**: op code of the param, used to identify the param received on the **Serial** interface.
-- - **paramsCount**: number of parameters used by the command.
-- - **commandFunction**: reference to the function containing the code for the param.
+	- **commandOpCode**: op code of the param, used to identify the param received on the **Serial** interface.
+	- **paramsCount**: number of parameters used by the command.
+	- **commandFunction**: reference to the function containing the code for the param.
 
 Commands should be defined using following macros:
 
