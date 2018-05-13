@@ -1,47 +1,58 @@
 #include "Input.h"
 #include <Arduino.h>
 
-#define DEFAULT_COMMANDS_MAX_LENGTH 20
-
-struct InputCommandData {
-  CommandParam* params[INPUT_COMMAND_MAX_PARAMS];
-  int paramsCount;
-  void (*commandFunction)(CommandParam** params, Stream* response);
-  Stream* response;
-};
-
-InputCommand* _commandDefinitions;
-
+InputCommand* commandDefinitions;
 InputCommand currentCommandDefinition;
+CommandParams paramsReader;
+int commandsMaxLength = DEFAULT_COMMANDS_MAX_LENGTH;
+int inputBufferIndex = 0;
+char* serialCommandBuffer;
+char* commandParams[INPUT_COMMAND_MAX_PARAMS];
 
-int _commandsMaxLength = DEFAULT_COMMANDS_MAX_LENGTH;
-int _inputBufferIndex = 0;
-char* _serialCommandBuffer;
-
-Input::Input() {
-  _commandsMaxLength = DEFAULT_COMMANDS_MAX_LENGTH;
-  _serialCommandBuffer = new char[_commandsMaxLength];
+char* CommandParams::getParamAsString(byte paramIndex) {
+  return commandParams[paramIndex];
 }
 
-Input::Input(int commandsMaxLength) {
-  _commandsMaxLength = commandsMaxLength;
-  _serialCommandBuffer = new char[_commandsMaxLength];
+int CommandParams::getParamAsInt(byte paramIndex) {
+  return atoi(commandParams[paramIndex]);
+}
+
+long CommandParams::getParamAsLongInt(byte paramIndex) {
+  return atol(commandParams[paramIndex]);
+}
+
+float CommandParams::getParamAsFloat(byte paramIndex) {
+  return atof(commandParams[paramIndex]);
+}
+
+Input::Input() {
+  commandsMaxLength = DEFAULT_COMMANDS_MAX_LENGTH;
+  serialCommandBuffer = new char[commandsMaxLength];
+}
+
+Input::Input(int aCommandsMaxLength) {
+  commandsMaxLength = aCommandsMaxLength;
+  serialCommandBuffer = new char[commandsMaxLength];
 }
 
 Input::~Input() {
-  delete[] _serialCommandBuffer;
+  delete[] serialCommandBuffer;
 }
 
 void Input::begin(int baud, InputCommand* aCommandDefinitions) {
-  _commandDefinitions = aCommandDefinitions;
+  commandDefinitions = aCommandDefinitions;
   Serial.begin(baud);
+}
+
+void Input::end() {
+  Serial.end();
 }
 
 bool findCommandDefinition(char* opCodeString) {
   int definitionIndex = 0;
   int found = false;
   while (true) {
-    memcpy_P (&currentCommandDefinition, &_commandDefinitions[definitionIndex], sizeof currentCommandDefinition);
+    memcpy_P(&currentCommandDefinition, &commandDefinitions[definitionIndex], sizeof currentCommandDefinition);
     if (currentCommandDefinition.paramsCount == -1) {
       break;
     }
@@ -55,59 +66,41 @@ bool findCommandDefinition(char* opCodeString) {
   return found;
 }
 
-void freeCommand(InputCommandData* command) {
-  for (int i = 0; i < command->paramsCount; i++) {
-    delete command->params[i];
-  }
-  delete command;
-}
-
-InputCommandData* createCommand(char* commandString) {
-  char* token = strtok (commandString, " ");
+bool parseCommand() {
+  char* token = strtok (serialCommandBuffer, " ");
   if (token != NULL) {
     if (findCommandDefinition(token)) {
-      InputCommandData* command = new InputCommandData;
-
-      command->commandFunction = currentCommandDefinition.commandFunction;
-      command->response = &Serial;
-
       token = strtok (NULL, " ");
       int paramIndex = 0;
       while (token != 0 && paramIndex < currentCommandDefinition.paramsCount && paramIndex < INPUT_COMMAND_MAX_PARAMS)
       {
-        command->params[paramIndex] = new CommandParam(token);
-
-        paramIndex++;
+        commandParams[paramIndex++] = token;
         token = strtok (NULL, " ");
       }
-      command->paramsCount = paramIndex;
 
-      if (command->paramsCount == currentCommandDefinition.paramsCount) {
-        return command;
-      } else {
-        freeCommand(command);
+      if (paramIndex == currentCommandDefinition.paramsCount) {
+        return true;
       }
     }
   }
 
-  return NULL;
+  return false;
 }
 
 bool processInputChar(char inChar) {
-  if (_inputBufferIndex >= _commandsMaxLength - 1) {
-    _inputBufferIndex = 0;
+  if (inputBufferIndex >= commandsMaxLength - 1) {
+    inputBufferIndex = 0;
     return true;
   } else {
     if (inChar != 13 && inChar != 10) {
-      _serialCommandBuffer[_inputBufferIndex++] = inChar;
+      serialCommandBuffer[inputBufferIndex++] = inChar;
     } else {
-      _serialCommandBuffer[_inputBufferIndex++] = 0;
-      InputCommandData* command = createCommand(_serialCommandBuffer);
-      if (command != NULL) {
-        command->commandFunction(command->params, command->response);
-        freeCommand(command);
+      serialCommandBuffer[inputBufferIndex++] = 0;
+      bool commandParsed = parseCommand();
+      if (commandParsed) {
+        currentCommandDefinition.commandFunction(&paramsReader, &Serial);
       }
-      _inputBufferIndex = 0;
+      inputBufferIndex = 0;
     }
     return false;
   }
