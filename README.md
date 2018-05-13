@@ -10,8 +10,8 @@ Each line on the Serial interface will be interpreted as a command, composed by:
 CommandOpCode param1 param2 param3 ...
 ```
 
-- **CommandOpCode**: string identifying the command. Command identifier is case sensitive and can contain any "small" amount of chars.
-- **params**: list of param values, params can be any string, int or float value.
+- **CommandOpCode**: string identifying the command. Command identifier is case sensitive and can contain any "small" amount of chars. **Small** means 19 or less chars. 
+- **params**: list of param values (limited to 5 per command), params can be any string, int or float value.
 - **Separator**: Whitespaces will be used as opCode and params separator.
 
 # Using the library:
@@ -38,21 +38,19 @@ Above instance will use a buffer of 42 chars.
 Each command should have a function with following signature:
 
 ``` c++
-void commandWithParams(CommandParam** params, Stream* response) {
+void commandWithParams(CommandParams &params, Stream &response) {
 	...
 }
 ```
 
-Parameters will be provided to the function on the **CommandParam*** array, each instance on this array will provide a method for the type required (int, float or string):
+Parameters will be provided to the function on the **CommandParams*** object. To read params, just call the following methods  passing the index (starting at 0) of the required param:
 
 ``` c++
-params[x]->asInt();
-params[x]->asLongInt();
-params[x]->asFloat();
-params[x]->asString();
+params.getParamAsInt(byte paramIndex);
+params.getParamAsLongInt(byte paramIndex);
+params.getParamAsFloat(byte paramIndex);
+params.getParamAsString(byte paramIndex);
 ```
-
-where **x** is the index of required parameter.
 
 Also, command functions will be able printing its response through the **response** parameter. This parameter is of type **Stream**, which have all **Serial** methods for printing.
 
@@ -69,7 +67,7 @@ where:
 - - **paramsCount**: number of parameters used by the command.
 - - **commandFunction**: reference to the function containing the code for the param.
 
-In order to determine the number of defined commands, the library requires you to pass a NULL value as last element in the commands definition array. In order to simplify this, the library provides two macros:
+Commands should be defined using following macros:
 
 ``` c++
 defineCommands(...)
@@ -93,24 +91,24 @@ To get started, just copy the following example.
 ``` c++
 #include <Input.h>
 
-Input input;
+Input input(100);
 
-void commandWithParams(CommandParam** params, Stream* response) {
+void commandWithParams(CommandParams &params, Stream &response) {
   // do command business here and then fullfill the command response:
-  response->print("command 1: ");
-  response->print(params[0]->asInt());
-  response->print(" ");
-  response->print(params[1]->asFloat());
-  response->print(" ");
-  response->println(params[2]->asString());
+  response.print("command 1: ");
+  response.print(params.getParamAsLongInt(0));
+  response.print(" ");
+  response.print(params.getParamAsFloat(1));
+  response.print(" ");
+  response.println(params.getParamAsString(2));
 }
 
-void commandWithNoParams(CommandParam** params, Stream* response) {
+void commandWithNoParams(CommandParams &params, Stream &response) {
   // do command business here and then fullfill the command response:
-  response->println("command 2");
+  response.println("command 2");
 }
 
-const InputCommand* commandDefinitions[] PROGMEM = defineCommands(
+const InputCommand commandDefinitions[] PROGMEM = defineCommands(
   command("com1", 3, &commandWithParams),
   command("com2", 0, &commandWithNoParams)
 );
