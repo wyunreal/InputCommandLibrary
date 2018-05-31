@@ -1,23 +1,23 @@
 #include <Input.h>
 
-Input input;
+Input input(100);
 
-void commandWithParams(CommandParam** params, Stream* response) {
+void commandWithParams(CommandParams &params, Stream &response) {
   // do command business here and then fullfill the command response:
-  response->print("command 1: ");
-  response->print(params[0]->asInt());
-  response->print(" ");
-  response->print(params[1]->asFloat());
-  response->print(" ");
-  response->println(params[2]->asString());
+  response.print("command 1: ");
+  response.print(params.getParamAsLongInt(0));
+  response.print(" ");
+  response.print(params.getParamAsFloat(1));
+  response.print(" ");
+  response.println(params.getParamAsString(2));
 }
 
-void commandWithNoParams(CommandParam** params, Stream* response) {
+void commandWithNoParams(CommandParams &params, Stream &response) {
   // do command business here and then fullfill the command response:
-  response->println("command 2");
+  response.println("command 2");
 }
 
-InputCommand* commandDefinitions[] = defineCommands(
+const InputCommand commandDefinitions[] PROGMEM = defineCommands(
   command("com1", 3, &commandWithParams),
   command("com2", 0, &commandWithNoParams)
 );
