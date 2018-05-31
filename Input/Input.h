@@ -18,10 +18,10 @@ class CommandParams {
 struct InputCommand {
   char pattern[OP_CODE_MAX_LEN];
   int paramsCount;
-  void (*commandFunction)(CommandParams* params, Stream* response);
+  void (*commandFunction)(CommandParams &params, Stream &response);
 };
 
-#define defineCommands(...)  {__VA_ARGS__,InputCommand {NULL, -1, NULL}}
+#define defineCommands(...)  {__VA_ARGS__,InputCommand {"", -1, NULL}}
 #define command(X,Y,Z)  InputCommand {X, Y, Z}
 
 class Input {
@@ -29,7 +29,7 @@ class Input {
     Input();
     Input(int aCommandsMaxLength);
     ~Input();
-    void begin(int baud, InputCommand* aCommandDefinitions);
+    void begin(int baud, const InputCommand* aCommandDefinitions);
     void end();
 };
 

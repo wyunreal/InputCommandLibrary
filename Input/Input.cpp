@@ -1,7 +1,7 @@
 #include "Input.h"
 #include <Arduino.h>
 
-InputCommand* commandDefinitions;
+const InputCommand* commandDefinitions;
 InputCommand currentCommandDefinition;
 CommandParams paramsReader;
 int commandsMaxLength = DEFAULT_COMMANDS_MAX_LENGTH;
@@ -39,7 +39,7 @@ Input::~Input() {
   delete[] serialCommandBuffer;
 }
 
-void Input::begin(int baud, InputCommand* aCommandDefinitions) {
+void Input::begin(int baud, const InputCommand* aCommandDefinitions) {
   commandDefinitions = aCommandDefinitions;
   Serial.begin(baud);
 }
@@ -98,7 +98,7 @@ bool processInputChar(char inChar) {
       serialCommandBuffer[inputBufferIndex++] = 0;
       bool commandParsed = parseCommand();
       if (commandParsed) {
-        currentCommandDefinition.commandFunction(&paramsReader, &Serial);
+        currentCommandDefinition.commandFunction(paramsReader, Serial);
       }
       inputBufferIndex = 0;
     }
