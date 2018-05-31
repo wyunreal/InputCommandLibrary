@@ -77,7 +77,7 @@ command(opCode, paramsCount, &commandFunction)
 These macros can be used as follow:
 
 ``` c++
-const InputCommand* commandDefinitions[] PROGMEM = defineCommands(
+const InputCommand commandDefinitions[] PROGMEM = defineCommands(
   command("com1", 3, &commandWithParams),
   command("com2", 0, &commandWithNoParams)
 );
