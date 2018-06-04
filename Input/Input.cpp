@@ -28,11 +28,13 @@ float CommandParams::getParamAsFloat(byte paramIndex) {
 Input::Input() {
   commandsMaxLength = DEFAULT_COMMANDS_MAX_LENGTH;
   serialCommandBuffer = new char[commandsMaxLength];
+  memset(serialCommandBuffer, 0, commandsMaxLength);
 }
 
 Input::Input(int aCommandsMaxLength) {
   commandsMaxLength = aCommandsMaxLength;
   serialCommandBuffer = new char[commandsMaxLength];
+  memset(serialCommandBuffer, 0, commandsMaxLength);
 }
 
 Input::~Input() {
@@ -74,6 +76,13 @@ bool parseCommand() {
       int paramIndex = 0;
       while (token != 0 && paramIndex < currentCommandDefinition.paramsCount && paramIndex < INPUT_COMMAND_MAX_PARAMS)
       {
+        if (token[0] == '"') {
+          token[strlen(token)] = ' ';
+          token = strtok (token, "\"");
+        } else if (token[0] == '\'') {
+          token[strlen(token)] = ' ';
+          token = strtok (token, "'");
+        }
         commandParams[paramIndex++] = token;
         token = strtok (NULL, " ");
       }
@@ -99,6 +108,7 @@ bool processInputChar(char inChar) {
       bool commandParsed = parseCommand();
       if (commandParsed) {
         currentCommandDefinition.commandFunction(paramsReader, Serial);
+        memset(serialCommandBuffer, 0, commandsMaxLength);
       }
       inputBufferIndex = 0;
     }
