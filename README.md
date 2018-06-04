@@ -52,6 +52,8 @@ params.getParamAsFloat(byte paramIndex);
 params.getParamAsString(byte paramIndex);
 ```
 
+String params should be provided surrounded by 'quotes' or "double quotes". If you need the param to include some of this chars, you can surround the param with the other. Take into account no escaping is supported. 
+
 Also, command functions will be able printing its response through the **response** parameter. This parameter is of type **Stream**, which have all **Serial** methods for printing.
 
 Last, you need to start the library by calling:
