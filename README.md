@@ -16,7 +16,12 @@ CommandOpCode param1 param2 param3 ...
 
 # Using the library:
 
-To use this library, just download as ZIP, unzip and copy the **Input** folder to your arduino's library folder.
+### Installation
+
+1. Download the library: https://github.com/wyunreal/InputCommandLibrary/archive/master.zip
+2. (In the Arduino IDE) Sketch > Include Library > Add .ZIP Library > select the downloaded file > Open
+
+### Usage
 
 First, you need to include the library and and create an instance:
 
