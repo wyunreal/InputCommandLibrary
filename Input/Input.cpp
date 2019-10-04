@@ -41,7 +41,7 @@ Input::~Input() {
   delete[] serialCommandBuffer;
 }
 
-void Input::begin(int baud, const InputCommand* aCommandDefinitions) {
+void Input::begin(long baud, const InputCommand* aCommandDefinitions) {
   commandDefinitions = aCommandDefinitions;
   Serial.begin(baud);
 }
