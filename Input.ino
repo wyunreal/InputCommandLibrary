@@ -24,10 +24,9 @@ const InputCommand commandDefinitions[] PROGMEM = defineCommands(
 
 void setup() {
   // initialize input command reader with main Serial at 9600 bauds
-  input.begin(9600, commandDefinitions);
+  input.begin(9600, '|', commandDefinitions);
 }
 
 void loop() {
   // your sketch can do here its main tasks
 }
-

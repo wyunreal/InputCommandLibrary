@@ -30,6 +30,7 @@ class Input {
     Input(int aCommandsMaxLength);
     ~Input();
     void begin(long baud, const InputCommand* aCommandDefinitions);
+    void begin(long baud, char multiCommandSeparator, const InputCommand* aCommandDefinitions);
     void end();
 };
 

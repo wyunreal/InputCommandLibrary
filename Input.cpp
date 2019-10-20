@@ -1,6 +1,7 @@
 #include "Input.h"
 #include <Arduino.h>
 
+char commandsSeparator = 0;
 const InputCommand* commandDefinitions;
 InputCommand currentCommandDefinition;
 CommandParams paramsReader;
@@ -42,6 +43,13 @@ Input::~Input() {
 }
 
 void Input::begin(long baud, const InputCommand* aCommandDefinitions) {
+  commandsSeparator = 0;
+  commandDefinitions = aCommandDefinitions;
+  Serial.begin(baud);
+}
+
+void Input::begin(long baud, char multiCommandSeparator, const InputCommand* aCommandDefinitions) {
+  commandsSeparator = multiCommandSeparator;
   commandDefinitions = aCommandDefinitions;
   Serial.begin(baud);
 }
@@ -101,7 +109,7 @@ bool processInputChar(char inChar) {
     inputBufferIndex = 0;
     return true;
   } else {
-    if (inChar != 13 && inChar != 10) {
+    if (inChar != 13 && inChar != 10 && inChar != commandsSeparator) {
       serialCommandBuffer[inputBufferIndex++] = inChar;
     } else {
       serialCommandBuffer[inputBufferIndex++] = 0;
@@ -126,4 +134,3 @@ void serialEvent() {
     }
   }
 }
-
