@@ -140,7 +140,7 @@ void setup() {
   // initialize input command reader with main Serial at 9600 bauds
   input.begin(9600, commandDefinitions);
   // use following call if you want to enable multi commands line, using '|' char, for example
-  input.begin(9600, '|', commandDefinitions);
+  // input.begin(9600, '|', commandDefinitions);
 }
 
 void loop() {
