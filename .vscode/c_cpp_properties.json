@@ -1,0 +1,25 @@
+{
+    "configurations": [
+        {
+            "name": "Linux",
+            "includePath": [
+                "${env:ARDUINO_HOME}/tools/**",
+                "${env:ARDUINO_HOME}/hardware/arduino/avr/**",
+                "${env:ARDUINO_HOME}/hardware/tools/**",
+                "${env:ARDUINO_HOME}/hardware/arduino/avr/cores/arduino",
+                "${env:ARDUINO_HOME}/libraries/**",
+                "/home/wyunreal/arduino-ide/hardware/arduino/avr/**",
+                "/home/wyunreal/arduino-ide/tools/**"
+            ],
+            "forcedInclude": [
+                "${env:ARDUINO_HOME}/hardware/arduino/avr/cores/arduino/Arduino.h",
+                "/home/wyunreal/arduino-ide/hardware/arduino/avr/cores/arduino/Arduino.h"
+            ],
+            "intelliSenseMode": "${default}",
+            "compilerPath": "${env:ARDUINO_HOME}/hardware/tools/avr/bin/avr-gcc",
+            "cStandard": "c11",
+            "cppStandard": "c++17"
+        }
+    ],
+    "version": 4
+}
