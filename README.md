@@ -2,7 +2,7 @@
 
 Simple Arduino Lib for handling Serial input as commands
 
-By using this library you will enable a commands parser on the main Serial interface of the arduino (the one used to debug while connected to PC through USB).
+By using this library you will enable a commands parser on the different Serial interfaces of the arduino, including the USB connection used to debug while connected to PC and also Serial1, Serial2 and Serial3 if available.
 
 Each line on the Serial interface will be interpreted as one or more commands, each one compsed by:
 
@@ -39,15 +39,15 @@ First, you need to include the library and and create an instance:
 Input input;
 ```
 
-Above instance will use a buffer of 20 chars, so, max length for command + params string will be 19 chars. If you need a longer buffer, just use pass desired size in constructor:
+Above instance will use a buffer of 20 chars, so, max length for command + params string will be 19 chars. If you need a longer buffer, or you need to use another serial interface, just use the second constructor:
 
 ```c++
 #include <Input.h>
 
-Input input(42);
+Input input(SERIAL_ID_1, 42);
 ```
 
-Above instance will use a buffer of 42 chars.
+Above instance will use the Serial1 hardware serial and a buffer of 42 chars. Take into account you can use multiple instances, using different serial interfaces, but you can not use more than one instance sharing the same serial interface.
 
 Each command should have a function with following signature:
 
