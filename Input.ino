@@ -16,7 +16,7 @@ void commandWithParams(CommandParams &params, Stream &response)
 void commandWithNoParams(CommandParams &params, Stream &response)
 {
   // do command business here and then fullfill the command response:
-  Serial.println("command 2");
+  response.println("command 2");
 }
 
 const InputCommand commandDefinitions[] PROGMEM = defineCommands(
