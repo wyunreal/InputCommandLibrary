@@ -1,8 +1,9 @@
 #include <Input.h>
 
-Input input(100);
+Input input;
 
-void commandWithParams(CommandParams &params, Stream &response) {
+void commandWithParams(CommandParams &params, Stream &response)
+{
   // do command business here and then fullfill the command response:
   response.print("command 1: ");
   response.print(params.getParamAsLongInt(0));
@@ -12,21 +13,23 @@ void commandWithParams(CommandParams &params, Stream &response) {
   response.println(params.getParamAsString(2));
 }
 
-void commandWithNoParams(CommandParams &params, Stream &response) {
+void commandWithNoParams(CommandParams &params, Stream &response)
+{
   // do command business here and then fullfill the command response:
   response.println("command 2");
 }
 
 const InputCommand commandDefinitions[] PROGMEM = defineCommands(
-  command("com1", 3, &commandWithParams),
-  command("com2", 0, &commandWithNoParams)
-);
+    command("com1", 3, &commandWithParams),
+    command("com2", 0, &commandWithNoParams));
 
-void setup() {
+void setup()
+{
   // initialize input command reader with main Serial at 9600 bauds
   input.begin(9600, commandDefinitions);
 }
 
-void loop() {
+void loop()
+{
   // your sketch can do here its main tasks
 }
