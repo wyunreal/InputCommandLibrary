@@ -46,6 +46,7 @@ public:
   ~Input();
   void begin(long baud, const InputCommand *aCommandDefinitions);
   void begin(long baud, char multiCommandSeparator, const InputCommand *aCommandDefinitions);
+  HardwareSerial *getSerialInterface();
   void end();
 
 private:

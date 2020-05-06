@@ -140,6 +140,11 @@ void Input::begin(long baud, char multiCommandSeparator, const InputCommand *aCo
   serial->begin(baud);
 }
 
+HardwareSerial *Input::getSerialInterface()
+{
+  return getHardwareSerialInstance(serialId);
+}
+
 void Input::end()
 {
   HardwareSerial *serial = getHardwareSerialInstance(serialId);
