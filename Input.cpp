@@ -19,6 +19,7 @@ struct SerialRuntimes
   SerialRuntime *serial3;
 };
 
+char *addressId;
 SerialRuntimes runtimes;
 
 InputCommand currentCommandDefinition;
@@ -99,6 +100,7 @@ HardwareSerial *getHardwareSerialInstance(SerialId serialId)
 
 Input::Input()
 {
+  addressId = NULL;
   serialId = SERIAL_ID_0;
   SerialRuntime *runtime = getRuntime(serialId, true);
   runtime->commandsMaxLength = DEFAULT_COMMANDS_MAX_LENGTH;
@@ -106,9 +108,10 @@ Input::Input()
   memset(runtime->serialCommandBuffer, 0, runtime->commandsMaxLength);
 }
 
-Input::Input(SerialId aSerialId, int aCommandsMaxLength)
+Input::Input(int aCommandsMaxLength)
 {
-  serialId = aSerialId;
+  addressId = NULL;
+  serialId = SERIAL_ID_0;
   SerialRuntime *runtime = getRuntime(serialId, true);
   runtime->commandsMaxLength = aCommandsMaxLength;
   runtime->serialCommandBuffer = new char[runtime->commandsMaxLength];
@@ -120,6 +123,18 @@ Input::~Input()
   SerialRuntime *runtime = getRuntime(serialId);
   delete[] runtime->serialCommandBuffer;
   delete runtime;
+}
+
+Input *Input::port(SerialId aSerialId)
+{
+  serialId = aSerialId;
+  return this;
+}
+
+Input *Input::address(char *anAddress)
+{
+  addressId = anAddress;
+  return this;
 }
 
 void Input::begin(long baud, const InputCommand *aCommandDefinitions)
@@ -154,55 +169,95 @@ void Input::end()
 bool findCommandDefinition(char *opCodeString, SerialRuntime *runtime)
 {
   int definitionIndex = 0;
-  int found = false;
   while (true)
   {
     memcpy_P(&currentCommandDefinition, &runtime->commandDefinitions[definitionIndex], sizeof currentCommandDefinition);
     if (currentCommandDefinition.paramsCount == -1)
     {
-      break;
+      return false;
     }
-    if (strcmp(currentCommandDefinition.pattern, opCodeString) == 0)
+    if (strlen(currentCommandDefinition.pattern) == 0 || strcmp(currentCommandDefinition.pattern, opCodeString) == 0)
     {
-      found = true;
-      break;
+      return true;
     }
     definitionIndex++;
   };
 
-  return found;
+  return false;
+}
+
+void concatTokens(char *buffer, int bufferLen, int concatCount)
+{
+  for (int i = 0; i < bufferLen; i++)
+  {
+    if (buffer[i] == 0)
+    {
+      buffer[i] = ' ';
+      if (--concatCount == 0)
+      {
+        return;
+      }
+    }
+  }
 }
 
 bool parseCommand(SerialRuntime *runtime)
 {
-  char *token = strtok(runtime->serialCommandBuffer, " ");
-  if (token != NULL)
+  int bufferLen = strlen(runtime->serialCommandBuffer);
+  int concatCount = 0;
+  char *opcode = strtok(runtime->serialCommandBuffer, " ");
+  char *addr = NULL;
+  if (opcode != NULL)
   {
-    if (findCommandDefinition(token, runtime))
-    {
-      token = strtok(NULL, " ");
-      int paramIndex = 0;
-      while (token != 0 && paramIndex < currentCommandDefinition.paramsCount && paramIndex < INPUT_COMMAND_MAX_PARAMS)
-      {
-        if (token[0] == '"')
-        {
-          token[strlen(token)] = ' ';
-          token = strtok(token, "\"");
-        }
-        else if (token[0] == '\'')
-        {
-          token[strlen(token)] = ' ';
-          token = strtok(token, "'");
-        }
-        commandParams[paramIndex++] = token;
-        token = strtok(NULL, " ");
-      }
+    addr = strtok(NULL, " ");
+    concatCount = addr != NULL ? 2 : 1;
+  }
 
-      if (paramIndex == currentCommandDefinition.paramsCount)
-      {
-        return true;
-      }
+  bool commandFound = false;
+  bool definitionFound = false;
+
+  if (opcode != NULL)
+  {
+    if (addressId != NULL && strlen(addressId) > 0 && (addr == NULL || strcmp(addr, addressId) != 0))
+    {
+      definitionFound = findCommandDefinition(NULL, runtime);
     }
+    else
+    {
+      definitionFound = commandFound = findCommandDefinition(opcode, runtime);
+    }
+  }
+
+  if (commandFound)
+  {
+    char *token = strtok(NULL, " ");
+    int paramIndex = 0;
+    while (token != 0 && paramIndex < currentCommandDefinition.paramsCount && paramIndex < INPUT_COMMAND_MAX_PARAMS)
+    {
+      if (token[0] == '"')
+      {
+        token[strlen(token)] = ' ';
+        token = strtok(token, "\"");
+      }
+      else if (token[0] == '\'')
+      {
+        token[strlen(token)] = ' ';
+        token = strtok(token, "'");
+      }
+      commandParams[paramIndex++] = token;
+      token = strtok(NULL, " ");
+    }
+
+    if (paramIndex == currentCommandDefinition.paramsCount)
+    {
+      return true;
+    }
+  }
+  else if (definitionFound)
+  {
+    concatTokens(runtime->serialCommandBuffer, bufferLen, concatCount);
+    commandParams[0] = runtime->serialCommandBuffer;
+    return true;
   }
 
   return false;

@@ -20,18 +20,15 @@ void commandWithNoParams(CommandParams &params, Stream &response)
     response.println("command 2");
 }
 
-const InputCommand usbCommandDefinitions[] PROGMEM = defineCommands(
+const InputCommand commandDefinitions[] PROGMEM = defineCommands(
     command("com1", 3, &commandWithParams),
     command("com2", 0, &commandWithNoParams));
-
-const InputCommand serial1CommandDefinitions[] PROGMEM = defineCommands(
-    command("com1", 3, &commandWithParams));
 
 void setup()
 {
     // initialize input command reader with main Serial at 9600 bauds
-    usbInput.begin(9600, usbCommandDefinitions);
-    serial1Input.port(SERIAL_ID_1)->begin(9600, serial1CommandDefinitions);
+    input.begin(9600, commandDefinitions);
+    input.port(SERIAL_ID_1)->begin(9600, commandDefinitions);
 }
 
 void loop()

@@ -42,8 +42,12 @@ class Input
 {
 public:
   Input();
-  Input(SerialId aSerialId, int aCommandsMaxLength);
+  Input(int aCommandsMaxLength);
   ~Input();
+
+  Input *port(SerialId aSerialId);
+  Input *address(char *anAddress);
+
   void begin(long baud, const InputCommand *aCommandDefinitions);
   void begin(long baud, char multiCommandSeparator, const InputCommand *aCommandDefinitions);
   HardwareSerial *getSerialInterface();
