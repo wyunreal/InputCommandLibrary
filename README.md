@@ -7,10 +7,11 @@ By using this library you will enable a commands parser on the different Serial 
 Each line on the Serial interface will be interpreted as one or more commands, each one compsed by:
 
 ```
-<CommandOpCode> param1 param2 param3 ...
+<CommandOpCode> address param1 param2 param3 ...
 ```
 
 - **CommandOpCode**: string identifying the command. Command identifier is case sensitive and can contain any "small" amount of chars. **Small** means 19 or less chars.
+- **address**: required only if an address is configured in the Input instance.
 - **params**: list of param values (limited to 5 per command), params can be any string, int or float value.
 - **ParamsSeparator**: Whitespaces will be used as opCode and params separator.
 
@@ -44,10 +45,10 @@ Above instance will use a buffer of 20 chars, so, max length for command + param
 ```c++
 #include <Input.h>
 
-Input input(SERIAL_ID_1, 42);
+Input input(42);
 ```
 
-Above instance will use the Serial1 hardware serial and a buffer of 42 chars. Take into account you can use multiple instances, using different serial interfaces, but you can not use more than one instance sharing the same serial interface.
+Above instance will use a buffer of 42 chars (if default constructor used, the default buffer size will be 20).
 
 Each command should have a function with following signature:
 
@@ -69,6 +70,33 @@ params.getParamAsString(byte paramIndex);
 String params should be provided surrounded by 'quotes' or "double quotes". If you need the param to include some of this chars, you can surround the param with the other. Take into account no escaping is supported.
 
 Also, command functions will be able printing its response through the **response** parameter. This parameter is of type **Stream**, which have all **Serial** methods for printing.
+
+**Selecting a port**
+
+Before starting to listen for input commands, you should specify the port, this can be done calling the port(serialId) function:
+
+```c++
+input.port(SERIAL_ID_1);
+```
+where the param represents the hardware serial interface to be used, accepted values are:
+- SERIAL_ID_0
+- SERIAL_ID_1
+- SERIAL_ID_2
+- SERIAL_ID_3
+
+SERIAL_ID_0 is the port connected to the USB in most boards.
+
+If you don't call this method, the used serial will be **SERIAL_ID_O**
+
+**Configuring an address**
+
+You can filter input serial commands by address, that is, if you call the **address(char*)** method, providing a valid address (any non empty C string), the library will execute commands only if provided address matches the address specified by the command.
+
+```c++
+input.address(ADDRESS);
+```
+
+If an address is configured, all incoming commands should have an address string before parameters.
 
 Last, you need to start the library by calling:
 
@@ -106,6 +134,20 @@ const InputCommand commandDefinitions[] PROGMEM = defineCommands(
 ```
 
 Take into account the library expects the commands definition be stored in program memory (to save precious RAM). Thats why the use of **const** and **PROGMEM** are mandatory in above code.
+
+**Providing NOT FOUND or FORBIDDEN handler**
+
+A **Not found** handler can be configured by adding a command deffinition containing an empty opcode and 0 params count at the end of commandDefinitions array:
+
+```c++
+const InputCommand commandDefinitions[] PROGMEM = defineCommands(
+  command("com1", 3, &commandWithParams),
+  command("com2", 0, &commandWithNoParams),
+  command("", 0, &notFoundHandler)
+);
+```
+
+The library will call the **NOT FOUND** handler when a command not found or invalid address, passing, as param 0, the complete command string.
 
 To get started, just copy the following example.
 
