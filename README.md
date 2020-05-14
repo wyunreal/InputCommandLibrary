@@ -18,7 +18,7 @@ Each line on the Serial interface will be interpreted as one or more commands, e
 If using multi command lines, each line will be interpreted as:
 
 ```
-<CommandOpCode> param1 param2 param3 ... <SeparatorChar><CommandOpCode> param1 ...
+<CommandOpCode> address param1 param2 param3 ... <SeparatorChar><CommandOpCode> address param1 ...
 ```
 - **CommandOpCode**: string identifying the command. Command identifier is case sensitive and can contain any "small" amount of chars. **Small** means 19 or less chars.
 - **params**: list of param values (limited to 5 per command), params can be any string, int or float value.
