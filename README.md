@@ -37,18 +37,11 @@ First, you need to include the library and and create an instance:
 ```c++
 #include <Input.h>
 
-Input input;
+char buffer[50];
+Input input(buffer, 50);
 ```
 
-Above instance will use a buffer of 20 chars, so, max length for command + params string will be 19 chars. If you need a longer buffer, or you need to use another serial interface, just use the second constructor:
-
-```c++
-#include <Input.h>
-
-Input input(42);
-```
-
-Above instance will use a buffer of 42 chars (if default constructor used, the default buffer size will be 20).
+The library uses an external buffer to store input chars, you need to pass the buffer and its available lenght.
 
 Each command should have a function with following signature:
 
