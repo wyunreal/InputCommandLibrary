@@ -1,7 +1,8 @@
 #include "Input.h"
 
-Input usbInput;
-Input serial1Input;
+char buffer[30];
+
+Input input(buffer, 30);
 
 void commandWithParams(CommandParams &params, Stream &response)
 {
@@ -24,11 +25,12 @@ const InputCommand commandDefinitions[] PROGMEM = defineCommands(
     command("com1", 3, &commandWithParams),
     command("com2", 0, &commandWithNoParams));
 
+char address[] = "1234";
+
 void setup()
 {
     // initialize input command reader with main Serial at 9600 bauds
-    input.begin(9600, commandDefinitions);
-    input.port(SERIAL_ID_1)->begin(9600, commandDefinitions);
+    input.address(address)->begin(9600, commandDefinitions);
 }
 
 void loop()

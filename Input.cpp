@@ -5,7 +5,7 @@ struct SerialRuntime
 {
   char commandsSeparator = 0;
   const InputCommand *commandDefinitions;
-  int commandsMaxLength = DEFAULT_COMMANDS_MAX_LENGTH;
+  int commandsMaxLength;
 
   int inputBufferIndex = 0;
   char *serialCommandBuffer;
@@ -98,30 +98,19 @@ HardwareSerial *getHardwareSerialInstance(SerialId serialId)
   return &Serial;
 }
 
-Input::Input()
+Input::Input(char *buffer, int bufferLen)
 {
   addressId = NULL;
   serialId = SERIAL_ID_0;
   SerialRuntime *runtime = getRuntime(serialId, true);
-  runtime->commandsMaxLength = DEFAULT_COMMANDS_MAX_LENGTH;
-  runtime->serialCommandBuffer = new char[runtime->commandsMaxLength];
-  memset(runtime->serialCommandBuffer, 0, runtime->commandsMaxLength);
-}
-
-Input::Input(int aCommandsMaxLength)
-{
-  addressId = NULL;
-  serialId = SERIAL_ID_0;
-  SerialRuntime *runtime = getRuntime(serialId, true);
-  runtime->commandsMaxLength = aCommandsMaxLength;
-  runtime->serialCommandBuffer = new char[runtime->commandsMaxLength];
-  memset(runtime->serialCommandBuffer, 0, runtime->commandsMaxLength);
+  runtime->commandsMaxLength = bufferLen - 1;
+  runtime->serialCommandBuffer = buffer;
+  memset(runtime->serialCommandBuffer, 0, runtime->commandsMaxLength + 1);
 }
 
 Input::~Input()
 {
   SerialRuntime *runtime = getRuntime(serialId);
-  delete[] runtime->serialCommandBuffer;
   delete runtime;
 }
 
@@ -204,13 +193,15 @@ void concatTokens(char *buffer, int bufferLen, int concatCount)
 bool parseCommand(SerialRuntime *runtime)
 {
   int bufferLen = strlen(runtime->serialCommandBuffer);
-  int concatCount = 0;
+  bool hasAddress = addressId != NULL && strlen(addressId) > 0;
   char *opcode = strtok(runtime->serialCommandBuffer, " ");
+  int concatCount = 1;
   char *addr = NULL;
-  if (opcode != NULL)
+
+  if (opcode != NULL && hasAddress)
   {
     addr = strtok(NULL, " ");
-    concatCount = addr != NULL ? 2 : 1;
+    concatCount = 2;
   }
 
   bool commandFound = false;
@@ -218,7 +209,7 @@ bool parseCommand(SerialRuntime *runtime)
 
   if (opcode != NULL)
   {
-    if (addressId != NULL && strlen(addressId) > 0 && (addr == NULL || strcmp(addr, addressId) != 0))
+    if (hasAddress && (addr == NULL || strcmp(addr, addressId) != 0))
     {
       definitionFound = findCommandDefinition(NULL, runtime);
     }
@@ -265,7 +256,7 @@ bool parseCommand(SerialRuntime *runtime)
 
 bool processInputChar(char inChar, SerialRuntime *runtime, HardwareSerial &serial)
 {
-  if (runtime->inputBufferIndex >= runtime->commandsMaxLength - 1)
+  if (runtime->inputBufferIndex >= runtime->commandsMaxLength)
   {
     runtime->inputBufferIndex = 0;
     return true;
@@ -283,7 +274,7 @@ bool processInputChar(char inChar, SerialRuntime *runtime, HardwareSerial &seria
       if (commandParsed)
       {
         currentCommandDefinition.commandFunction(paramsReader, serial);
-        memset(runtime->serialCommandBuffer, 0, runtime->commandsMaxLength);
+        memset(runtime->serialCommandBuffer, 0, runtime->commandsMaxLength + 1);
       }
       runtime->inputBufferIndex = 0;
     }

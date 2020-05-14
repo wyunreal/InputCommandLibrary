@@ -1,7 +1,10 @@
 #include "Input.h"
 
-Input usbInput;
-Input serial1Input;
+char usbBuffer[30];
+char serial1Buffer[40];
+
+Input usbInput(usbBuffer, 30);
+Input serial1Input(serial1Buffer, 40);
 
 void commandWithParams(CommandParams &params, Stream &response)
 {

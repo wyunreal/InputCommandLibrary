@@ -1,6 +1,8 @@
 #include <Input.h>
 
-Input input;
+char buffer[30];
+
+Input input(buffer, 30);
 
 void commandWithParams(CommandParams &params, Stream &response)
 {

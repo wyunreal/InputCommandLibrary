@@ -41,8 +41,7 @@ struct InputCommand
 class Input
 {
 public:
-  Input();
-  Input(int aCommandsMaxLength);
+  Input(char *buffer, int bufferLen);
   ~Input();
 
   Input *port(SerialId aSerialId);
