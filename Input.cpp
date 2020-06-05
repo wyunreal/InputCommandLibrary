@@ -229,7 +229,7 @@ bool parseCommand(SerialRuntime *runtime)
     }
   }
 
-  if (commandFound)
+  if (commandFound && strlen(currentCommandDefinition.pattern) > 0)
   {
     char *token = strtok(NULL, " ");
     int paramIndex = 0;
