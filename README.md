@@ -46,7 +46,7 @@ The library uses an external buffer to store input chars, you need to pass the b
 Each command should have a function with following signature:
 
 ```c++
-void commandWithParams(CommandParams &params, Stream &response) {
+void commandWithParams(CommandParams &params, ResponseWritter &response) {
 	...
 }
 ```
@@ -62,7 +62,31 @@ params.getParamAsString(byte paramIndex);
 
 String params should be provided surrounded by 'quotes' or "double quotes". If you need the param to include some of this chars, you can surround the param with the other. Take into account no escaping is supported.
 
-Also, command functions will be able printing its response through the **response** parameter. This parameter is of type **Stream**, which have all **Serial** methods for printing.
+Also, command functions will be able printing its response through the **response** parameter. This parameter is of type **ResponseWritter**, which have all **Serial** methods for printing.
+
+**Setting custom response writter**
+
+The above **ResponseWritter &response** parameter can be overrided using **writter**:
+
+```c++
+
+class CustomWritter : public ResponseWritter
+{
+public:
+    // You can override the print or println method you need
+    virtual size_t print(const char value[])
+    {
+    	// Do custom stuff and print using ResponseWritter::print or ResponseWritter::println methods: 
+        size_t size = ResponseWritter::print(value);
+        size += ResponseWritter::print("some custom data");
+        return size;
+    }
+};
+
+CustomWritter customWritter;
+
+input.writter(&customWritter);
+```
 
 **Selecting a port**
 
@@ -151,7 +175,7 @@ To get started, just copy the following example.
 
 Input input(100);
 
-void commandWithParams(CommandParams &params, Stream &response) {
+void commandWithParams(CommandParams &params, ResponseWritter &response) {
   // do command business here and then fullfill the command response:
   response.print("command 1: ");
   response.print(params.getParamAsLongInt(0));
@@ -161,7 +185,7 @@ void commandWithParams(CommandParams &params, Stream &response) {
   response.println(params.getParamAsString(2));
 }
 
-void commandWithNoParams(CommandParams &params, Stream &response) {
+void commandWithNoParams(CommandParams &params, ResponseWritter &response) {
   // do command business here and then fullfill the command response:
   response.println("command 2");
 }
