@@ -6,7 +6,7 @@ char serial1Buffer[40];
 Input usbInput(usbBuffer, 30);
 Input serial1Input(serial1Buffer, 40);
 
-void commandWithParams(CommandParams &params, Stream &response)
+void commandWithParams(CommandParams &params, ResponseWritter &response)
 {
     // do command business here and then fullfill the command response:
     response.print("command 1: ");
@@ -17,7 +17,7 @@ void commandWithParams(CommandParams &params, Stream &response)
     response.println(params.getParamAsString(2));
 }
 
-void commandWithNoParams(CommandParams &params, Stream &response)
+void commandWithNoParams(CommandParams &params, ResponseWritter &response)
 {
     // do command business here and then fullfill the command response:
     response.println("command 2");
@@ -34,7 +34,7 @@ void setup()
 {
     // initialize input command reader with main Serial at 9600 bauds
     usbInput.begin(9600, usbCommandDefinitions);
-    serial1Input.port(SERIAL_ID_1)->begin(9600, serial1CommandDefinitions);
+    serial1Input.port(SERIAL_ID_1).begin(9600, serial1CommandDefinitions);
 }
 
 void loop()
