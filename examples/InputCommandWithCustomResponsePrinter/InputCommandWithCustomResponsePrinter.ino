@@ -1,0 +1,51 @@
+#include <Input.h>
+
+char buffer[30];
+
+Input input(buffer, 30);
+
+void commandWithParams(CommandParams &params, ResponseWritter &response)
+{
+    // do command business here and then fullfill the command response:
+    response.print("command 1: ");
+    response.print(params.getParamAsLongInt(0));
+    response.print(" ");
+    response.print(params.getParamAsFloat(1));
+    response.print(" ");
+    response.println(params.getParamAsString(2));
+}
+
+void commandWithNoParams(CommandParams &params, ResponseWritter &response)
+{
+    // do command business here and then fullfill the command response:
+    response.println("command 2");
+}
+
+const InputCommand commandDefinitions[] PROGMEM = defineCommands(
+    command("com1", 3, &commandWithParams),
+    command("com2", 0, &commandWithNoParams));
+
+class CustomWritter : public ResponseWritter
+{
+public:
+    // You can override the Print method you need
+    virtual size_t print(const char value[])
+    {
+        size_t size = ResponseWritter::print(value);
+        size += ResponseWritter::print("<data>");
+        return size;
+    }
+};
+
+CustomWritter customWritter;
+
+void setup()
+{
+    // initialize input command reader with main Serial at 9600 bauds, specifying a custom response printer
+    input.writter(&customWritter).begin(9600, '|', commandDefinitions);
+}
+
+void loop()
+{
+    // your sketch can do here its main tasks
+}
