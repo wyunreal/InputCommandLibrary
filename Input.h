@@ -92,7 +92,7 @@ public:
 
   void begin(long baud, const InputCommand *aCommandDefinitions);
   void begin(long baud, char multiCommandSeparator, const InputCommand *aCommandDefinitions);
-  HardwareSerial *getSerialInterface();
+  ResponseWritter &getSerialInterface();
   void end();
 
 private:

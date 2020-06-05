@@ -350,9 +350,11 @@ void Input::begin(long baud, char multiCommandSeparator, const InputCommand *aCo
   serial->begin(baud);
 }
 
-HardwareSerial *Input::getSerialInterface()
+ResponseWritter &Input::getSerialInterface()
 {
-  return getHardwareSerialInstance(serialId);
+  HardwareSerial *serial = getHardwareSerialInstance(serialId);
+  responseWritter->setStream(serial);
+  return *responseWritter;
 }
 
 void Input::end()
