@@ -41,7 +41,7 @@ struct InputCommand
 class Input
 {
 public:
-  Input(char *buffer, int bufferLen);
+  Input(char *aBuffer, int aBufferLen);
   ~Input();
 
   Input *port(SerialId aSerialId);
@@ -54,6 +54,9 @@ public:
 
 private:
   SerialId serialId;
+  char *addressId;
+  char *buffer;
+  int bufferLen;
 };
 
 #endif

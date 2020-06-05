@@ -3,10 +3,10 @@
 
 struct SerialRuntime
 {
+  char *addressId = NULL;
   char commandsSeparator = 0;
   const InputCommand *commandDefinitions;
   int commandsMaxLength;
-
   int inputBufferIndex = 0;
   char *serialCommandBuffer;
 };
@@ -19,7 +19,6 @@ struct SerialRuntimes
   SerialRuntime *serial3;
 };
 
-char *addressId;
 SerialRuntimes runtimes;
 
 InputCommand currentCommandDefinition;
@@ -98,14 +97,12 @@ HardwareSerial *getHardwareSerialInstance(SerialId serialId)
   return &Serial;
 }
 
-Input::Input(char *buffer, int bufferLen)
+Input::Input(char *aBuffer, int aBufferLen)
 {
-  addressId = NULL;
+  buffer = aBuffer;
+  bufferLen = aBufferLen;
   serialId = SERIAL_ID_0;
-  SerialRuntime *runtime = getRuntime(serialId, true);
-  runtime->commandsMaxLength = bufferLen - 1;
-  runtime->serialCommandBuffer = buffer;
-  memset(runtime->serialCommandBuffer, 0, runtime->commandsMaxLength + 1);
+  addressId = NULL;
 }
 
 Input::~Input()
@@ -126,9 +123,21 @@ Input *Input::address(char *anAddress)
   return this;
 }
 
+SerialRuntime *InitRuntime(SerialId serialId, char *addressId, char *buffer, int bufferLen)
+{
+  SerialRuntime *runtime = getRuntime(serialId, true);
+  runtime->addressId = addressId;
+  runtime->commandsMaxLength = bufferLen - 1;
+  runtime->serialCommandBuffer = buffer;
+  memset(runtime->serialCommandBuffer, 0, runtime->commandsMaxLength + 1);
+
+  return runtime;
+}
+
 void Input::begin(long baud, const InputCommand *aCommandDefinitions)
 {
-  SerialRuntime *runtime = getRuntime(serialId);
+  SerialRuntime *runtime = InitRuntime(serialId, addressId, buffer, bufferLen);
+
   runtime->commandsSeparator = 0;
   runtime->commandDefinitions = aCommandDefinitions;
   HardwareSerial *serial = getHardwareSerialInstance(serialId);
@@ -137,7 +146,8 @@ void Input::begin(long baud, const InputCommand *aCommandDefinitions)
 
 void Input::begin(long baud, char multiCommandSeparator, const InputCommand *aCommandDefinitions)
 {
-  SerialRuntime *runtime = getRuntime(serialId);
+  SerialRuntime *runtime = InitRuntime(serialId, addressId, buffer, bufferLen);
+
   runtime->commandsSeparator = multiCommandSeparator;
   runtime->commandDefinitions = aCommandDefinitions;
   HardwareSerial *serial = getHardwareSerialInstance(serialId);
@@ -193,7 +203,7 @@ void concatTokens(char *buffer, int bufferLen, int concatCount)
 bool parseCommand(SerialRuntime *runtime)
 {
   int bufferLen = strlen(runtime->serialCommandBuffer);
-  bool hasAddress = addressId != NULL && strlen(addressId) > 0;
+  bool hasAddress = runtime->addressId != NULL && strlen(runtime->addressId) > 0;
   char *opcode = strtok(runtime->serialCommandBuffer, " ");
   int concatCount = 1;
   char *addr = NULL;
@@ -209,7 +219,7 @@ bool parseCommand(SerialRuntime *runtime)
 
   if (opcode != NULL)
   {
-    if (hasAddress && (addr == NULL || strcmp(addr, addressId) != 0))
+    if (hasAddress && (addr == NULL || strcmp(addr, runtime->addressId) != 0))
     {
       definitionFound = findCommandDefinition(NULL, runtime);
     }
