@@ -10,20 +10,21 @@ Each line on the Serial interface will be interpreted as one or more commands, e
 <CommandOpCode> address param1 param2 param3 ...
 ```
 
-- **CommandOpCode**: string identifying the command. Command identifier is case sensitive and can contain any "small" amount of chars. **Small** means 19 or less chars.
-- **address**: required only if an address is configured in the Input instance.
-- **params**: list of param values (limited to 5 per command), params can be any string, int or float value.
-- **ParamsSeparator**: Whitespaces will be used as opCode and params separator.
+-   **CommandOpCode**: string identifying the command. Command identifier is case sensitive and can contain any "small" amount of chars. **Small** means 19 or less chars.
+-   **address**: required only if an address is configured in the Input instance.
+-   **params**: list of param values (limited to 5 per command), params can be any string, int or float value.
+-   **ParamsSeparator**: Whitespaces will be used as opCode and params separator.
 
 If using multi command lines, each line will be interpreted as:
 
 ```
 <CommandOpCode> address param1 param2 param3 ... <SeparatorChar><CommandOpCode> address param1 ...
 ```
-- **CommandOpCode**: string identifying the command. Command identifier is case sensitive and can contain any "small" amount of chars. **Small** means 19 or less chars.
-- **params**: list of param values (limited to 5 per command), params can be any string, int or float value.
-- **ParamsSeparator**: Whitespaces will be used as opCode and params separator.
-- **SeparatorChar**: A char used as commands separator (see ussage section to know how to enable multi command lines).
+
+-   **CommandOpCode**: string identifying the command. Command identifier is case sensitive and can contain any "small" amount of chars. **Small** means 19 or less chars.
+-   **params**: list of param values (limited to 5 per command), params can be any string, int or float value.
+-   **ParamsSeparator**: Whitespaces will be used as opCode and params separator.
+-   **SeparatorChar**: A char used as commands separator (see ussage section to know how to enable multi command lines).
 
 ### Installation
 
@@ -66,7 +67,7 @@ Also, command functions will be able printing its response through the **respons
 
 **Setting custom response writter**
 
-The above **ResponseWritter &response** parameter can be overrided using **writter**:
+The above **ResponseWritter &response** parameter can be overrided using **responseWritter**:
 
 ```c++
 
@@ -76,7 +77,7 @@ public:
     // You can override the print or println method you need
     virtual size_t print(const char value[])
     {
-    	// Do custom stuff and print using ResponseWritter::print or ResponseWritter::println methods: 
+    	// Do custom stuff and print using ResponseWritter::print or ResponseWritter::println methods:
         size_t size = ResponseWritter::print(value);
         size += ResponseWritter::print("some custom data");
         return size;
@@ -85,7 +86,7 @@ public:
 
 CustomWritter customWritter;
 
-input.writter(&customWritter);
+input.responseWritter(&customWritter);
 ```
 
 **Selecting a port**
@@ -95,11 +96,13 @@ Before starting to listen for input commands, you should specify the port, this 
 ```c++
 input.port(SERIAL_ID_1);
 ```
+
 where the param represents the hardware serial interface to be used, accepted values are:
-- SERIAL_ID_0
-- SERIAL_ID_1
-- SERIAL_ID_2
-- SERIAL_ID_3
+
+-   SERIAL_ID_0
+-   SERIAL_ID_1
+-   SERIAL_ID_2
+-   SERIAL_ID_3
 
 SERIAL_ID_0 is the port connected to the USB in most boards.
 
@@ -107,7 +110,7 @@ If you don't call this method, the used serial will be **SERIAL_ID_O**
 
 **Configuring an address**
 
-You can filter input serial commands by address, that is, if you call the **address(char*)** method, providing a valid address (any non empty C string), the library will execute commands only if provided address matches the address specified by the command.
+You can filter input serial commands by address, that is, if you call the **address(char\*)** method, providing a valid address (any non empty C string), the library will execute commands only if provided address matches the address specified by the command.
 
 ```c++
 input.address(ADDRESS);
@@ -123,8 +126,8 @@ input.begin(bauds, commandDefinitions);
 
 where:
 
-- **bauds** represents the baudRate you want to open Serial with.
-- **commandDefinitions**: is an array of **InputCommand** instances, used to define each command. **InputCommand** constructor requires 3 params: - **commandOpCode**: op code of the param, used to identify the param received on the **Serial** interface. - **paramsCount**: number of parameters used by the command. - **commandFunction**: reference to the function containing the code for the param.
+-   **bauds** represents the baudRate you want to open Serial with.
+-   **commandDefinitions**: is an array of **InputCommand** instances, used to define each command. **InputCommand** constructor requires 3 params: - **commandOpCode**: op code of the param, used to identify the param received on the **Serial** interface. - **paramsCount**: number of parameters used by the command. - **commandFunction**: reference to the function containing the code for the param.
 
 To enable **multi command lines**, just specify a commands separator char when calling **begin** method:
 
@@ -132,7 +135,7 @@ To enable **multi command lines**, just specify a commands separator char when c
 input.begin(bauds, commandsSeparatorChar, commandDefinitions);
 ```
 
-- **commandsSeparatorChar**: a char used to sepatate commands on a multi commands line, take into account this char can not be used in command op codes nor params.
+-   **commandsSeparatorChar**: a char used to sepatate commands on a multi commands line, take into account this char can not be used in command op codes nor params.
 
 Commands should be defined using following macros:
 

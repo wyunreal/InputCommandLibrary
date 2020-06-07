@@ -9,7 +9,7 @@ struct SerialRuntime
   int commandsMaxLength;
   int inputBufferIndex = 0;
   char *serialCommandBuffer;
-  ResponseWritter *writter;
+  ResponseWritter *respWritter;
 };
 
 struct SerialRuntimes
@@ -21,7 +21,7 @@ struct SerialRuntimes
 };
 
 SerialRuntimes runtimes;
-
+ResponseWritter Input::defaultWritter;
 InputCommand currentCommandDefinition;
 CommandParams paramsReader;
 char *commandParams[INPUT_COMMAND_MAX_PARAMS];
@@ -281,18 +281,13 @@ Input::Input(char *aBuffer, int aBufferLen)
   bufferLen = aBufferLen;
   serialId = SERIAL_ID_0;
   addressId = NULL;
-  defaultResponseWritter = new ResponseWritter();
-  responseWritter = defaultResponseWritter;
+  respWritter = &defaultWritter;
 }
 
 Input::~Input()
 {
   SerialRuntime *runtime = getRuntime(serialId);
   delete runtime;
-  if (defaultResponseWritter)
-  {
-    delete defaultResponseWritter;
-  }
 }
 
 Input &Input::port(SerialId aSerialId)
@@ -307,14 +302,9 @@ Input &Input::address(char *anAddress)
   return *this;
 }
 
-Input &Input::writter(ResponseWritter *aWritter)
+Input &Input::responseWritter(ResponseWritter *aWritter)
 {
-  if (defaultResponseWritter)
-  {
-    delete defaultResponseWritter;
-    defaultResponseWritter = NULL;
-  }
-  responseWritter = aWritter;
+  respWritter = aWritter;
   return *this;
 }
 
@@ -324,7 +314,7 @@ SerialRuntime *InitRuntime(SerialId serialId, char *addressId, char *buffer, int
   runtime->addressId = addressId;
   runtime->commandsMaxLength = bufferLen - 1;
   runtime->serialCommandBuffer = buffer;
-  runtime->writter = aWritter;
+  runtime->respWritter = aWritter;
   memset(runtime->serialCommandBuffer, 0, runtime->commandsMaxLength + 1);
 
   return runtime;
@@ -332,7 +322,7 @@ SerialRuntime *InitRuntime(SerialId serialId, char *addressId, char *buffer, int
 
 void Input::begin(long baud, const InputCommand *aCommandDefinitions)
 {
-  SerialRuntime *runtime = InitRuntime(serialId, addressId, buffer, bufferLen, responseWritter);
+  SerialRuntime *runtime = InitRuntime(serialId, addressId, buffer, bufferLen, respWritter);
 
   runtime->commandsSeparator = 0;
   runtime->commandDefinitions = aCommandDefinitions;
@@ -342,7 +332,7 @@ void Input::begin(long baud, const InputCommand *aCommandDefinitions)
 
 void Input::begin(long baud, char multiCommandSeparator, const InputCommand *aCommandDefinitions)
 {
-  SerialRuntime *runtime = InitRuntime(serialId, addressId, buffer, bufferLen, responseWritter);
+  SerialRuntime *runtime = InitRuntime(serialId, addressId, buffer, bufferLen, respWritter);
 
   runtime->commandsSeparator = multiCommandSeparator;
   runtime->commandDefinitions = aCommandDefinitions;
@@ -353,8 +343,8 @@ void Input::begin(long baud, char multiCommandSeparator, const InputCommand *aCo
 ResponseWritter &Input::getSerialInterface()
 {
   HardwareSerial *serial = getHardwareSerialInstance(serialId);
-  responseWritter->setStream(serial);
-  return *responseWritter;
+  defaultWritter.setStream(serial);
+  return defaultWritter;
 }
 
 void Input::end()
@@ -481,8 +471,8 @@ bool processInputChar(char inChar, SerialRuntime *runtime, HardwareSerial &seria
       bool commandParsed = parseCommand(runtime);
       if (commandParsed)
       {
-        runtime->writter->setStream(&serial);
-        currentCommandDefinition.commandFunction(paramsReader, *runtime->writter);
+        runtime->respWritter->setStream(&serial);
+        currentCommandDefinition.commandFunction(paramsReader, *runtime->respWritter);
         memset(runtime->serialCommandBuffer, 0, runtime->commandsMaxLength + 1);
       }
       runtime->inputBufferIndex = 0;

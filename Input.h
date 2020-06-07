@@ -88,7 +88,7 @@ public:
 
   Input &port(SerialId aSerialId);
   Input &address(char *anAddress);
-  Input &writter(ResponseWritter *aWritter);
+  Input &responseWritter(ResponseWritter *aWritter);
 
   void begin(long baud, const InputCommand *aCommandDefinitions);
   void begin(long baud, char multiCommandSeparator, const InputCommand *aCommandDefinitions);
@@ -100,8 +100,8 @@ private:
   char *addressId;
   char *buffer;
   int bufferLen;
-  ResponseWritter *defaultResponseWritter;
-  ResponseWritter *responseWritter;
+  static ResponseWritter defaultWritter;
+  ResponseWritter *respWritter;
 };
 
 #endif
