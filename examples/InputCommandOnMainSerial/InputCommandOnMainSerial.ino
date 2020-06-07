@@ -4,7 +4,7 @@ char buffer[30];
 
 Input input(buffer, 30);
 
-void commandWithParams(CommandParams &params, ResponseWritter &response)
+void commandWithParams(CommandParams &params, ResponseWriter &response)
 {
   // do command business here and then fullfill the command response:
   response.print("command 1: ");
@@ -15,7 +15,7 @@ void commandWithParams(CommandParams &params, ResponseWritter &response)
   response.println(params.getParamAsString(2));
 }
 
-void commandWithNoParams(CommandParams &params, ResponseWritter &response)
+void commandWithNoParams(CommandParams &params, ResponseWriter &response)
 {
   // do command business here and then fullfill the command response:
   response.println("command 2");

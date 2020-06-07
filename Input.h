@@ -24,10 +24,10 @@ public:
   float getParamAsFloat(byte paramIndex);
 };
 
-class ResponseWritter : public Print
+class ResponseWriter : public Print
 {
 public:
-  ResponseWritter();
+  ResponseWriter();
 
   void setStream(Print *aPrinter);
 
@@ -70,7 +70,7 @@ struct InputCommand
 {
   char pattern[OP_CODE_MAX_LEN];
   int paramsCount;
-  void (*commandFunction)(CommandParams &params, ResponseWritter &response);
+  void (*commandFunction)(CommandParams &params, ResponseWriter &response);
 };
 
 #define defineCommands(...)                    \
@@ -88,11 +88,11 @@ public:
 
   Input &port(SerialId aSerialId);
   Input &address(char *anAddress);
-  Input &responseWritter(ResponseWritter *aWritter);
+  Input &responseWriter(ResponseWriter *aWriter);
 
   void begin(long baud, const InputCommand *aCommandDefinitions);
   void begin(long baud, char multiCommandSeparator, const InputCommand *aCommandDefinitions);
-  ResponseWritter &getSerialInterface();
+  ResponseWriter &getSerialInterface();
   void end();
 
 private:
@@ -100,8 +100,8 @@ private:
   char *addressId;
   char *buffer;
   int bufferLen;
-  static ResponseWritter defaultWritter;
-  ResponseWritter *respWritter;
+  static ResponseWriter defaultWriter;
+  ResponseWriter *respWriter;
 };
 
 #endif

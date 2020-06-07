@@ -9,7 +9,7 @@ struct SerialRuntime
   int commandsMaxLength;
   int inputBufferIndex = 0;
   char *serialCommandBuffer;
-  ResponseWritter *respWritter;
+  ResponseWriter *respWriter;
 };
 
 struct SerialRuntimes
@@ -21,7 +21,7 @@ struct SerialRuntimes
 };
 
 SerialRuntimes runtimes;
-ResponseWritter Input::defaultWritter;
+ResponseWriter Input::defaultWriter;
 InputCommand currentCommandDefinition;
 CommandParams paramsReader;
 char *commandParams[INPUT_COMMAND_MAX_PARAMS];
@@ -103,25 +103,25 @@ bool isLineBreak(uint8_t value)
   return value == 13 || value == 10;
 }
 
-ResponseWritter::ResponseWritter()
+ResponseWriter::ResponseWriter()
 {
   printer = NULL;
   newLineWritten = true;
 }
 
-void ResponseWritter::setStream(Print *aPrinter)
+void ResponseWriter::setStream(Print *aPrinter)
 {
   printer = aPrinter;
 }
 
-bool ResponseWritter::isNewLine()
+bool ResponseWriter::isNewLine()
 {
   bool result = newLineWritten;
   newLineWritten = false;
   return result;
 }
 
-size_t ResponseWritter::write(uint8_t value)
+size_t ResponseWriter::write(uint8_t value)
 {
   if (isLineBreak(value))
   {
@@ -130,12 +130,12 @@ size_t ResponseWritter::write(uint8_t value)
   return printer->write(value);
 }
 
-size_t ResponseWritter::print(const __FlashStringHelper *value)
+size_t ResponseWriter::print(const __FlashStringHelper *value)
 {
   return printer->print(value);
 }
 
-size_t ResponseWritter::print(const String &value)
+size_t ResponseWriter::print(const String &value)
 {
   for (int i = 0; i < value.length(); i++)
   {
@@ -147,7 +147,7 @@ size_t ResponseWritter::print(const String &value)
   return printer->print(value);
 }
 
-size_t ResponseWritter::print(const char value[])
+size_t ResponseWriter::print(const char value[])
 {
   for (int i = 0; i < strlen(value); i++)
   {
@@ -159,7 +159,7 @@ size_t ResponseWritter::print(const char value[])
   return printer->print(value);
 }
 
-size_t ResponseWritter::print(char value)
+size_t ResponseWriter::print(char value)
 {
   if (isLineBreak(value))
   {
@@ -168,108 +168,108 @@ size_t ResponseWritter::print(char value)
   return printer->print(value);
 }
 
-size_t ResponseWritter::print(unsigned char value, int base)
+size_t ResponseWriter::print(unsigned char value, int base)
 {
   return printer->print(value, base);
 }
 
-size_t ResponseWritter::print(int value, int base)
+size_t ResponseWriter::print(int value, int base)
 {
   return printer->print(value, base);
 }
 
-size_t ResponseWritter::print(unsigned int value, int base)
+size_t ResponseWriter::print(unsigned int value, int base)
 {
   return printer->print(value, base);
 }
 
-size_t ResponseWritter::print(long value, int base)
+size_t ResponseWriter::print(long value, int base)
 {
   return printer->print(value, base);
 }
 
-size_t ResponseWritter::print(unsigned long value, int base)
+size_t ResponseWriter::print(unsigned long value, int base)
 {
   return printer->print(value, base);
 }
 
-size_t ResponseWritter::print(double value, int base)
+size_t ResponseWriter::print(double value, int base)
 {
   return printer->print(value, base);
 }
 
-size_t ResponseWritter::print(const Printable &value)
+size_t ResponseWriter::print(const Printable &value)
 {
   return printer->print(value);
 }
 
-size_t ResponseWritter::println(const __FlashStringHelper *value)
+size_t ResponseWriter::println(const __FlashStringHelper *value)
 {
   newLineWritten = true;
   return printer->println(value);
 }
 
-size_t ResponseWritter::println(const String &value)
+size_t ResponseWriter::println(const String &value)
 {
   newLineWritten = true;
   return printer->println(value);
 }
 
-size_t ResponseWritter::println(const char value[])
+size_t ResponseWriter::println(const char value[])
 {
   newLineWritten = true;
   return printer->println(value);
 }
 
-size_t ResponseWritter::println(char value)
+size_t ResponseWriter::println(char value)
 {
   newLineWritten = true;
   return printer->println(value);
 }
 
-size_t ResponseWritter::println(unsigned char value, int base)
+size_t ResponseWriter::println(unsigned char value, int base)
 {
   newLineWritten = true;
   return printer->println(value, base);
 }
 
-size_t ResponseWritter::println(int value, int base)
+size_t ResponseWriter::println(int value, int base)
 {
   newLineWritten = true;
   return printer->println(value, base);
 }
 
-size_t ResponseWritter::println(unsigned int value, int base)
+size_t ResponseWriter::println(unsigned int value, int base)
 {
   newLineWritten = true;
   return printer->println(value, base);
 }
 
-size_t ResponseWritter::println(long value, int base)
+size_t ResponseWriter::println(long value, int base)
 {
   newLineWritten = true;
   return printer->println(value, base);
 }
 
-size_t ResponseWritter::println(unsigned long value, int base)
+size_t ResponseWriter::println(unsigned long value, int base)
 {
   newLineWritten = true;
   return printer->println(value, base);
 }
 
-size_t ResponseWritter::println(double value, int base)
+size_t ResponseWriter::println(double value, int base)
 {
   newLineWritten = true;
   return printer->println(value, base);
 }
 
-size_t ResponseWritter::println(const Printable &value)
+size_t ResponseWriter::println(const Printable &value)
 {
   newLineWritten = true;
   return printer->println(value);
 }
 
-size_t ResponseWritter::println(void)
+size_t ResponseWriter::println(void)
 {
   newLineWritten = true;
   return printer->println();
@@ -281,7 +281,7 @@ Input::Input(char *aBuffer, int aBufferLen)
   bufferLen = aBufferLen;
   serialId = SERIAL_ID_0;
   addressId = NULL;
-  respWritter = &defaultWritter;
+  respWriter = &defaultWriter;
 }
 
 Input::~Input()
@@ -302,19 +302,19 @@ Input &Input::address(char *anAddress)
   return *this;
 }
 
-Input &Input::responseWritter(ResponseWritter *aWritter)
+Input &Input::responseWriter(ResponseWriter *aWriter)
 {
-  respWritter = aWritter;
+  respWriter = aWriter;
   return *this;
 }
 
-SerialRuntime *InitRuntime(SerialId serialId, char *addressId, char *buffer, int bufferLen, ResponseWritter *aWritter)
+SerialRuntime *InitRuntime(SerialId serialId, char *addressId, char *buffer, int bufferLen, ResponseWriter *aWriter)
 {
   SerialRuntime *runtime = getRuntime(serialId, true);
   runtime->addressId = addressId;
   runtime->commandsMaxLength = bufferLen - 1;
   runtime->serialCommandBuffer = buffer;
-  runtime->respWritter = aWritter;
+  runtime->respWriter = aWriter;
   memset(runtime->serialCommandBuffer, 0, runtime->commandsMaxLength + 1);
 
   return runtime;
@@ -322,7 +322,7 @@ SerialRuntime *InitRuntime(SerialId serialId, char *addressId, char *buffer, int
 
 void Input::begin(long baud, const InputCommand *aCommandDefinitions)
 {
-  SerialRuntime *runtime = InitRuntime(serialId, addressId, buffer, bufferLen, respWritter);
+  SerialRuntime *runtime = InitRuntime(serialId, addressId, buffer, bufferLen, respWriter);
 
   runtime->commandsSeparator = 0;
   runtime->commandDefinitions = aCommandDefinitions;
@@ -332,7 +332,7 @@ void Input::begin(long baud, const InputCommand *aCommandDefinitions)
 
 void Input::begin(long baud, char multiCommandSeparator, const InputCommand *aCommandDefinitions)
 {
-  SerialRuntime *runtime = InitRuntime(serialId, addressId, buffer, bufferLen, respWritter);
+  SerialRuntime *runtime = InitRuntime(serialId, addressId, buffer, bufferLen, respWriter);
 
   runtime->commandsSeparator = multiCommandSeparator;
   runtime->commandDefinitions = aCommandDefinitions;
@@ -340,11 +340,11 @@ void Input::begin(long baud, char multiCommandSeparator, const InputCommand *aCo
   serial->begin(baud);
 }
 
-ResponseWritter &Input::getSerialInterface()
+ResponseWriter &Input::getSerialInterface()
 {
   HardwareSerial *serial = getHardwareSerialInstance(serialId);
-  defaultWritter.setStream(serial);
-  return defaultWritter;
+  defaultWriter.setStream(serial);
+  return defaultWriter;
 }
 
 void Input::end()
@@ -471,8 +471,8 @@ bool processInputChar(char inChar, SerialRuntime *runtime, HardwareSerial &seria
       bool commandParsed = parseCommand(runtime);
       if (commandParsed)
       {
-        runtime->respWritter->setStream(&serial);
-        currentCommandDefinition.commandFunction(paramsReader, *runtime->respWritter);
+        runtime->respWriter->setStream(&serial);
+        currentCommandDefinition.commandFunction(paramsReader, *runtime->respWriter);
         memset(runtime->serialCommandBuffer, 0, runtime->commandsMaxLength + 1);
       }
       runtime->inputBufferIndex = 0;
