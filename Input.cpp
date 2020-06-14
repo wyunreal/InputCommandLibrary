@@ -135,18 +135,6 @@ size_t ResponseWriter::print(const __FlashStringHelper *value)
   return printer->print(value);
 }
 
-size_t ResponseWriter::print(const String &value)
-{
-  for (int i = 0; i < value.length(); i++)
-  {
-    if (isLineBreak(value[i]))
-    {
-      newLineWritten = true;
-    }
-  }
-  return printer->print(value);
-}
-
 size_t ResponseWriter::print(const char value[])
 {
   for (int i = 0; i < strlen(value); i++)
@@ -198,18 +186,7 @@ size_t ResponseWriter::print(double value, int base)
   return printer->print(value, base);
 }
 
-size_t ResponseWriter::print(const Printable &value)
-{
-  return printer->print(value);
-}
-
 size_t ResponseWriter::println(const __FlashStringHelper *value)
-{
-  newLineWritten = true;
-  return printer->println(value);
-}
-
-size_t ResponseWriter::println(const String &value)
 {
   newLineWritten = true;
   return printer->println(value);
@@ -261,12 +238,6 @@ size_t ResponseWriter::println(double value, int base)
 {
   newLineWritten = true;
   return printer->println(value, base);
-}
-
-size_t ResponseWriter::println(const Printable &value)
-{
-  newLineWritten = true;
-  return printer->println(value);
 }
 
 size_t ResponseWriter::println(void)
