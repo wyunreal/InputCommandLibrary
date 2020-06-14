@@ -109,6 +109,11 @@ ResponseWriter::ResponseWriter()
   newLineWritten = true;
 }
 
+Print *ResponseWriter::getStream()
+{
+  return printer;
+}
+
 void ResponseWriter::setStream(Print *aPrinter)
 {
   printer = aPrinter;

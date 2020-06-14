@@ -29,6 +29,7 @@ class ResponseWriter
 public:
   ResponseWriter();
 
+  Print *getStream();
   void setStream(Print *aPrinter);
 
   virtual size_t write(uint8_t);
