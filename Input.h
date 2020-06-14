@@ -24,7 +24,7 @@ public:
   float getParamAsFloat(byte paramIndex);
 };
 
-class ResponseWriter : public Print
+class ResponseWriter
 {
 public:
   ResponseWriter();
