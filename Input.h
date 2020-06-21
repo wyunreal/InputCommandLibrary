@@ -98,7 +98,7 @@ private:
   char *addressId;
   char *buffer;
   int bufferLen;
-  static ResponseWriter defaultWriter;
+  ResponseWriter defaultWriter;
   ResponseWriter *respWriter;
 };
 

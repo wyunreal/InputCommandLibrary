@@ -21,7 +21,6 @@ struct SerialRuntimes
 };
 
 SerialRuntimes runtimes;
-ResponseWriter Input::defaultWriter;
 InputCommand currentCommandDefinition;
 CommandParams paramsReader;
 char *commandParams[INPUT_COMMAND_MAX_PARAMS];
