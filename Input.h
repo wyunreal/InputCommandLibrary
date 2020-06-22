@@ -31,6 +31,9 @@ public:
 
   Print *getStream();
   void setStream(Print *aPrinter);
+  virtual void setAddressFromParams(CommandParams &params, int paramsCount) {}
+  void setAddress(char *anAddress) { address = anAddress; }
+  char *getAddress() { return address; }
 
   virtual size_t write(uint8_t);
 
@@ -62,6 +65,7 @@ protected:
 private:
   Print *printer;
   bool newLineWritten;
+  char *address;
 };
 
 struct InputCommand
@@ -87,6 +91,7 @@ public:
   Input &port(SerialId aSerialId);
   Input &address(char *anAddress);
   Input &responseWriter(ResponseWriter *aWriter);
+  Input &isSlave();
 
   void begin(long baud, const InputCommand *aCommandDefinitions);
   void begin(long baud, char multiCommandSeparator, const InputCommand *aCommandDefinitions);
@@ -98,6 +103,7 @@ private:
   char *addressId;
   char *buffer;
   int bufferLen;
+  bool slave;
   ResponseWriter defaultWriter;
   ResponseWriter *respWriter;
 };

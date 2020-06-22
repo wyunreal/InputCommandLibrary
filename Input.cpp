@@ -10,6 +10,7 @@ struct SerialRuntime
   int inputBufferIndex = 0;
   char *serialCommandBuffer;
   ResponseWriter *respWriter;
+  bool isSlave;
 };
 
 struct SerialRuntimes
@@ -257,6 +258,7 @@ Input::Input(char *aBuffer, int aBufferLen)
   serialId = SERIAL_ID_0;
   addressId = NULL;
   respWriter = &defaultWriter;
+  slave = false;
 }
 
 Input::~Input()
@@ -283,7 +285,13 @@ Input &Input::responseWriter(ResponseWriter *aWriter)
   return *this;
 }
 
-SerialRuntime *InitRuntime(SerialId serialId, char *addressId, char *buffer, int bufferLen, ResponseWriter *aWriter)
+Input &Input::isSlave()
+{
+  slave = true;
+  return *this;
+}
+
+SerialRuntime *InitRuntime(SerialId serialId, char *addressId, char *buffer, int bufferLen, ResponseWriter *aWriter, bool isSlave)
 {
   SerialRuntime *runtime = getRuntime(serialId, true);
   runtime->addressId = addressId;
@@ -291,14 +299,14 @@ SerialRuntime *InitRuntime(SerialId serialId, char *addressId, char *buffer, int
   runtime->serialCommandBuffer = buffer;
   runtime->respWriter = aWriter;
   memset(runtime->serialCommandBuffer, 0, runtime->commandsMaxLength + 1);
+  runtime->isSlave = isSlave;
 
   return runtime;
 }
 
 void Input::begin(long baud, const InputCommand *aCommandDefinitions)
 {
-  SerialRuntime *runtime = InitRuntime(serialId, addressId, buffer, bufferLen, respWriter);
-
+  SerialRuntime *runtime = InitRuntime(serialId, addressId, buffer, bufferLen, respWriter, slave);
   runtime->commandsSeparator = 0;
   runtime->commandDefinitions = aCommandDefinitions;
   HardwareSerial *serial = getHardwareSerialInstance(serialId);
@@ -307,7 +315,7 @@ void Input::begin(long baud, const InputCommand *aCommandDefinitions)
 
 void Input::begin(long baud, char multiCommandSeparator, const InputCommand *aCommandDefinitions)
 {
-  SerialRuntime *runtime = InitRuntime(serialId, addressId, buffer, bufferLen, respWriter);
+  SerialRuntime *runtime = InitRuntime(serialId, addressId, buffer, bufferLen, respWriter, slave);
 
   runtime->commandsSeparator = multiCommandSeparator;
   runtime->commandDefinitions = aCommandDefinitions;
@@ -447,6 +455,10 @@ bool processInputChar(char inChar, SerialRuntime *runtime, HardwareSerial &seria
       if (commandParsed)
       {
         runtime->respWriter->setStream(&serial);
+        if (runtime->isSlave)
+        {
+          runtime->respWriter->setAddressFromParams(paramsReader, currentCommandDefinition.paramsCount);
+        }
         currentCommandDefinition.commandFunction(paramsReader, *runtime->respWriter);
         memset(runtime->serialCommandBuffer, 0, runtime->commandsMaxLength + 1);
       }
