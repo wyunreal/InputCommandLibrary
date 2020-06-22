@@ -307,6 +307,7 @@ SerialRuntime *InitRuntime(SerialId serialId, char *addressId, char *buffer, int
 void Input::begin(long baud, const InputCommand *aCommandDefinitions)
 {
   SerialRuntime *runtime = InitRuntime(serialId, addressId, buffer, bufferLen, respWriter, slave);
+
   runtime->commandsSeparator = 0;
   runtime->commandDefinitions = aCommandDefinitions;
   HardwareSerial *serial = getHardwareSerialInstance(serialId);
@@ -374,7 +375,7 @@ void concatTokens(char *buffer, int bufferLen, int concatCount)
 bool parseCommand(SerialRuntime *runtime)
 {
   int bufferLen = strlen(runtime->serialCommandBuffer);
-  bool hasAddress = runtime->addressId != NULL && strlen(runtime->addressId) > 0;
+  bool hasAddress = !runtime->isSlave && runtime->addressId != NULL && strlen(runtime->addressId) > 0;
   char *opcode = strtok(runtime->serialCommandBuffer, " ");
   int concatCount = 1;
   char *addr = NULL;
