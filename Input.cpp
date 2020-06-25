@@ -4,6 +4,7 @@
 struct SerialRuntime
 {
   char *addressId = NULL;
+  char *broadcastAddressId = NULL;
   char commandsSeparator = 0;
   const InputCommand *commandDefinitions;
   int commandsMaxLength;
@@ -257,6 +258,7 @@ Input::Input(char *aBuffer, int aBufferLen)
   bufferLen = aBufferLen;
   serialId = SERIAL_ID_0;
   addressId = NULL;
+  broadcastAddressId = NULL;
   respWriter = &defaultWriter;
   slave = false;
 }
@@ -276,6 +278,14 @@ Input &Input::port(SerialId aSerialId)
 Input &Input::address(char *anAddress)
 {
   addressId = anAddress;
+  broadcastAddressId = NULL;
+  return *this;
+}
+
+Input &Input::address(char *anAddress, char *aBroadcastAddress)
+{
+  addressId = anAddress;
+  broadcastAddressId = aBroadcastAddress;
   return *this;
 }
 
@@ -291,10 +301,11 @@ Input &Input::isSlave()
   return *this;
 }
 
-SerialRuntime *InitRuntime(SerialId serialId, char *addressId, char *buffer, int bufferLen, ResponseWriter *aWriter, bool isSlave)
+SerialRuntime *InitRuntime(SerialId serialId, char *addressId, char *broadcastAddressId, char *buffer, int bufferLen, ResponseWriter *aWriter, bool isSlave)
 {
   SerialRuntime *runtime = getRuntime(serialId, true);
   runtime->addressId = addressId;
+  runtime->broadcastAddressId = broadcastAddressId;
   runtime->commandsMaxLength = bufferLen - 1;
   runtime->serialCommandBuffer = buffer;
   runtime->respWriter = aWriter;
@@ -306,7 +317,7 @@ SerialRuntime *InitRuntime(SerialId serialId, char *addressId, char *buffer, int
 
 void Input::begin(long baud, const InputCommand *aCommandDefinitions)
 {
-  SerialRuntime *runtime = InitRuntime(serialId, addressId, buffer, bufferLen, respWriter, slave);
+  SerialRuntime *runtime = InitRuntime(serialId, addressId, broadcastAddressId, buffer, bufferLen, respWriter, slave);
 
   runtime->commandsSeparator = 0;
   runtime->commandDefinitions = aCommandDefinitions;
@@ -316,7 +327,7 @@ void Input::begin(long baud, const InputCommand *aCommandDefinitions)
 
 void Input::begin(long baud, char multiCommandSeparator, const InputCommand *aCommandDefinitions)
 {
-  SerialRuntime *runtime = InitRuntime(serialId, addressId, buffer, bufferLen, respWriter, slave);
+  SerialRuntime *runtime = InitRuntime(serialId, addressId, broadcastAddressId, buffer, bufferLen, respWriter, slave);
 
   runtime->commandsSeparator = multiCommandSeparator;
   runtime->commandDefinitions = aCommandDefinitions;
@@ -391,7 +402,7 @@ bool parseCommand(SerialRuntime *runtime)
 
   if (opcode != NULL)
   {
-    if (hasAddress && (addr == NULL || strcmp(addr, runtime->addressId) != 0))
+    if (hasAddress && (addr == NULL || (strcmp(addr, runtime->addressId) != 0 && strcmp(addr, runtime->broadcastAddressId) != 0)))
     {
       definitionFound = findCommandDefinition(NULL, runtime);
     }

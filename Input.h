@@ -90,6 +90,7 @@ public:
 
   Input &port(SerialId aSerialId);
   Input &address(char *anAddress);
+  Input &address(char *anAddress, char* aBroadcastAddress);
   Input &responseWriter(ResponseWriter *aWriter);
   Input &isSlave();
 
@@ -101,6 +102,7 @@ public:
 private:
   SerialId serialId;
   char *addressId;
+  char *broadcastAddressId;
   char *buffer;
   int bufferLen;
   bool slave;
