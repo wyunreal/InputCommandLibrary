@@ -12,6 +12,9 @@ struct SerialRuntime
   char *serialCommandBuffer;
   ResponseWriter *respWriter;
   bool isSlave;
+  bool commandIsBroadcast;
+  int commandLen = 0;
+  InputBroadcastHandler broadcastHandler;
 };
 
 struct SerialRuntimes
@@ -289,6 +292,12 @@ Input &Input::address(char *anAddress, char *aBroadcastAddress)
   return *this;
 }
 
+Input &Input::broadcastHandler(InputBroadcastHandler aBroadcastHandler)
+{
+  bcastHandler = aBroadcastHandler;
+  return *this;
+}
+
 Input &Input::responseWriter(ResponseWriter *aWriter)
 {
   respWriter = aWriter;
@@ -301,7 +310,7 @@ Input &Input::isSlave()
   return *this;
 }
 
-SerialRuntime *InitRuntime(SerialId serialId, char *addressId, char *broadcastAddressId, char *buffer, int bufferLen, ResponseWriter *aWriter, bool isSlave)
+SerialRuntime *InitRuntime(SerialId serialId, char *addressId, char *broadcastAddressId, char *buffer, int bufferLen, ResponseWriter *aWriter, bool isSlave, InputBroadcastHandler broadcastHandler)
 {
   SerialRuntime *runtime = getRuntime(serialId, true);
   runtime->addressId = addressId;
@@ -311,13 +320,15 @@ SerialRuntime *InitRuntime(SerialId serialId, char *addressId, char *broadcastAd
   runtime->respWriter = aWriter;
   memset(runtime->serialCommandBuffer, 0, runtime->commandsMaxLength + 1);
   runtime->isSlave = isSlave;
+  runtime->commandIsBroadcast = false;
+  runtime->broadcastHandler = broadcastHandler;
 
   return runtime;
 }
 
 void Input::begin(long baud, const InputCommand *aCommandDefinitions)
 {
-  SerialRuntime *runtime = InitRuntime(serialId, addressId, broadcastAddressId, buffer, bufferLen, respWriter, slave);
+  SerialRuntime *runtime = InitRuntime(serialId, addressId, broadcastAddressId, buffer, bufferLen, respWriter, slave, bcastHandler);
 
   runtime->commandsSeparator = 0;
   runtime->commandDefinitions = aCommandDefinitions;
@@ -327,7 +338,7 @@ void Input::begin(long baud, const InputCommand *aCommandDefinitions)
 
 void Input::begin(long baud, char multiCommandSeparator, const InputCommand *aCommandDefinitions)
 {
-  SerialRuntime *runtime = InitRuntime(serialId, addressId, broadcastAddressId, buffer, bufferLen, respWriter, slave);
+  SerialRuntime *runtime = InitRuntime(serialId, addressId, broadcastAddressId, buffer, bufferLen, respWriter, slave, bcastHandler);
 
   runtime->commandsSeparator = multiCommandSeparator;
   runtime->commandDefinitions = aCommandDefinitions;
@@ -385,15 +396,17 @@ void concatTokens(char *buffer, int bufferLen, int concatCount)
 
 bool parseCommand(SerialRuntime *runtime)
 {
-  int bufferLen = strlen(runtime->serialCommandBuffer);
+  runtime->commandLen = strlen(runtime->serialCommandBuffer);
   bool hasAddress = !runtime->isSlave && runtime->addressId != NULL && strlen(runtime->addressId) > 0;
   char *opcode = strtok(runtime->serialCommandBuffer, " ");
   int concatCount = 1;
   char *addr = NULL;
 
+  runtime->commandIsBroadcast = false;
   if (opcode != NULL && hasAddress)
   {
     addr = strtok(NULL, " ");
+    runtime->commandIsBroadcast = strcmp(addr, runtime->broadcastAddressId) == 0;
     concatCount = 2;
   }
 
@@ -402,7 +415,7 @@ bool parseCommand(SerialRuntime *runtime)
 
   if (opcode != NULL)
   {
-    if (hasAddress && (addr == NULL || (strcmp(addr, runtime->addressId) != 0 && strcmp(addr, runtime->broadcastAddressId) != 0)))
+    if (hasAddress && (addr == NULL || (strcmp(addr, runtime->addressId) != 0 && !runtime->commandIsBroadcast)))
     {
       definitionFound = findCommandDefinition(NULL, runtime);
     }
@@ -439,7 +452,7 @@ bool parseCommand(SerialRuntime *runtime)
   }
   else if (definitionFound)
   {
-    concatTokens(runtime->serialCommandBuffer, bufferLen, concatCount);
+    concatTokens(runtime->serialCommandBuffer, runtime->commandLen, concatCount);
     commandParams[0] = runtime->serialCommandBuffer;
     return true;
   }
@@ -472,6 +485,11 @@ bool processInputChar(char inChar, SerialRuntime *runtime, HardwareSerial &seria
           runtime->respWriter->setAddressFromParams(paramsReader, currentCommandDefinition.paramsCount);
         }
         currentCommandDefinition.commandFunction(paramsReader, *runtime->respWriter);
+        if (runtime->commandIsBroadcast and runtime->broadcastHandler != NULL)
+        {
+          concatTokens(runtime->serialCommandBuffer, runtime->commandLen, 2);
+          runtime->broadcastHandler(runtime->serialCommandBuffer);
+        }
         memset(runtime->serialCommandBuffer, 0, runtime->commandsMaxLength + 1);
       }
       runtime->inputBufferIndex = 0;

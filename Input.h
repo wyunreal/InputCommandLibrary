@@ -7,6 +7,8 @@
 #define INPUT_COMMAND_MAX_PARAMS 5
 #define DEFAULT_COMMANDS_MAX_LENGTH 20
 
+typedef void (*InputBroadcastHandler)(char *command);
+
 enum SerialId
 {
   SERIAL_ID_0 = 0,
@@ -90,7 +92,8 @@ public:
 
   Input &port(SerialId aSerialId);
   Input &address(char *anAddress);
-  Input &address(char *anAddress, char* aBroadcastAddress);
+  Input &address(char *anAddress, char *aBroadcastAddress);
+  Input &broadcastHandler(InputBroadcastHandler aBroadcastHandler);
   Input &responseWriter(ResponseWriter *aWriter);
   Input &isSlave();
 
@@ -108,6 +111,7 @@ private:
   bool slave;
   ResponseWriter defaultWriter;
   ResponseWriter *respWriter;
+  InputBroadcastHandler bcastHandler;
 };
 
 #endif
