@@ -11,7 +11,7 @@ Each line on the Serial interface will be interpreted as one or more commands, e
 ```
 
 -   **CommandOpCode**: string identifying the command. Command identifier is case sensitive and can contain any "small" amount of chars. **Small** means 19 or less chars.
--   **address**: required only if an address is configured in the Input instance.
+-   **address**: required only if the Input instance is not Slave and an address is configured.
 -   **params**: list of param values (limited to 5 per command), params can be any string, int or float value.
 -   **ParamsSeparator**: Whitespaces will be used as opCode and params separator.
 
@@ -22,6 +22,7 @@ If using multi command lines, each line will be interpreted as:
 ```
 
 -   **CommandOpCode**: string identifying the command. Command identifier is case sensitive and can contain any "small" amount of chars. **Small** means 19 or less chars.
+-   **address**: required only if the Input instance is not Slave and an address is configured.
 -   **params**: list of param values (limited to 5 per command), params can be any string, int or float value.
 -   **ParamsSeparator**: Whitespaces will be used as opCode and params separator.
 -   **SeparatorChar**: A char used as commands separator (see ussage section to know how to enable multi command lines).
@@ -208,6 +209,31 @@ void setup() {
 void loop() {
   // your sketch can do here its main tasks
 }
+```
+
+# Advanced features
+
+## Command redirections
+
+If a command definition is passed having an empty command op code, it will be handled as an "unknown command" redirector and the given function will be called, passing the whole command as **param 0** 
+
+### Example:
+
+```c++
+
+void commandFunction(CommandParams &params, ResponseWriter &response) {
+  // do command business here and then fullfill the command response:
+}
+
+void unknownCommandRedirector(CommandParams &params, ResponseWriter &response) {
+  // do something with the unknown command:
+  callSomeFunctionToRedirectTheCommand(params.getParamAsString(0));
+}
+
+const InputCommand commandDefinitions[] PROGMEM = defineCommands(
+  command("command", 3, &commandFunction),
+  command("", 0, &callSomeFunctionToRedirectTheCommand)
+);
 ```
 
 # Contribute
