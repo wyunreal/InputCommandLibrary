@@ -211,31 +211,6 @@ void loop() {
 }
 ```
 
-# Advanced features
-
-## Command redirections
-
-If a command definition is passed having an empty command op code, it will be handled as an "unknown command" redirector and the given function will be called, passing the whole command as **param 0** 
-
-### Example:
-
-```c++
-
-void commandFunction(CommandParams &params, ResponseWriter &response) {
-  // do command business here and then fullfill the command response:
-}
-
-void unknownCommandRedirector(CommandParams &params, ResponseWriter &response) {
-  // do something with the unknown command:
-  callSomeFunctionToRedirectTheCommand(params.getParamAsString(0));
-}
-
-const InputCommand commandDefinitions[] PROGMEM = defineCommands(
-  command("command", 3, &commandFunction),
-  command("", 0, &callSomeFunctionToRedirectTheCommand)
-);
-```
-
 # Contribute
 
 If you want to contribute, just do a pull request here at Github !
