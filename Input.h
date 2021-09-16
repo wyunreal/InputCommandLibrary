@@ -37,6 +37,8 @@ public:
   virtual void setAddressFromParams(CommandParams &params, int paramsCount) {}
   void setAddress(char *anAddress) { address = anAddress; }
   char *getAddress() { return address; }
+  void setRequestId(int aRequestId) { requestId = aRequestId; }
+  int getRequestId() { return requestId; }
 
   virtual size_t write(uint8_t);
 
@@ -69,6 +71,7 @@ private:
   Print *printer;
   bool newLineWritten;
   char *address;
+  int requestId;
 };
 
 struct InputCommand

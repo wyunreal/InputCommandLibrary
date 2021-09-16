@@ -418,6 +418,7 @@ bool parseCommand(SerialRuntime *runtime)
   char *opcode = strtok(runtime->serialCommandBuffer, " ");
   int concatCount = 1;
   char *addr = NULL;
+  requestId = 0;
 
   runtime->commandIsBroadcast = false;
   if (opcode != NULL && hasAddress)
@@ -508,6 +509,7 @@ bool processInputChar(char inChar, SerialRuntime *runtime, HardwareSerial &seria
         {
           runtime->respWriter->setAddressFromParams(paramsReader, currentCommandDefinition.paramsCount);
         }
+        runtime->respWriter->setRequestId(requestId);
         currentCommandDefinition.commandFunction(paramsReader, *runtime->respWriter);
         if (runtime->commandIsBroadcast and runtime->broadcastHandler != NULL)
         {
