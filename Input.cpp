@@ -11,7 +11,8 @@ struct SerialRuntime
   int inputBufferIndex = 0;
   char *serialCommandBuffer;
   ResponseWriter *respWriter;
-  bool isSlave;
+  bool isSlave = false;
+  bool withRequestId = false;
   bool commandIsBroadcast;
   int commandLen = 0;
   InputBroadcastHandler broadcastHandler;
@@ -27,12 +28,20 @@ struct SerialRuntimes
 
 SerialRuntimes runtimes;
 InputCommand currentCommandDefinition;
+
+int requestId;
+
 CommandParams paramsReader;
 char *commandParams[INPUT_COMMAND_MAX_PARAMS];
 
 char *CommandParams::getParamAsString(byte paramIndex)
 {
   return commandParams[paramIndex];
+}
+
+int CommandParams::getRequestId()
+{
+  return requestId;
 }
 
 int CommandParams::getParamAsInt(byte paramIndex)
@@ -264,6 +273,7 @@ Input::Input(char *aBuffer, int aBufferLen)
   broadcastAddressId = NULL;
   respWriter = &defaultWriter;
   slave = false;
+  useRequestId = false;
 }
 
 Input::~Input()
@@ -310,7 +320,13 @@ Input &Input::isSlave()
   return *this;
 }
 
-SerialRuntime *InitRuntime(SerialId serialId, char *addressId, char *broadcastAddressId, char *buffer, int bufferLen, ResponseWriter *aWriter, bool isSlave, InputBroadcastHandler broadcastHandler)
+Input &Input::withRequestId()
+{
+  useRequestId = true;
+  return *this;
+}
+
+SerialRuntime *InitRuntime(SerialId serialId, char *addressId, char *broadcastAddressId, char *buffer, int bufferLen, ResponseWriter *aWriter, bool isSlave, bool withRequestId, InputBroadcastHandler broadcastHandler)
 {
   SerialRuntime *runtime = getRuntime(serialId, true);
   runtime->addressId = addressId;
@@ -320,6 +336,7 @@ SerialRuntime *InitRuntime(SerialId serialId, char *addressId, char *broadcastAd
   runtime->respWriter = aWriter;
   memset(runtime->serialCommandBuffer, 0, runtime->commandsMaxLength + 1);
   runtime->isSlave = isSlave;
+  runtime->withRequestId = withRequestId;
   runtime->commandIsBroadcast = false;
   runtime->broadcastHandler = broadcastHandler;
 
@@ -328,7 +345,7 @@ SerialRuntime *InitRuntime(SerialId serialId, char *addressId, char *broadcastAd
 
 void Input::begin(long baud, const InputCommand *aCommandDefinitions)
 {
-  SerialRuntime *runtime = InitRuntime(serialId, addressId, broadcastAddressId, buffer, bufferLen, respWriter, slave, bcastHandler);
+  SerialRuntime *runtime = InitRuntime(serialId, addressId, broadcastAddressId, buffer, bufferLen, respWriter, slave, useRequestId, bcastHandler);
 
   runtime->commandsSeparator = 0;
   runtime->commandDefinitions = aCommandDefinitions;
@@ -338,7 +355,7 @@ void Input::begin(long baud, const InputCommand *aCommandDefinitions)
 
 void Input::begin(long baud, char multiCommandSeparator, const InputCommand *aCommandDefinitions)
 {
-  SerialRuntime *runtime = InitRuntime(serialId, addressId, broadcastAddressId, buffer, bufferLen, respWriter, slave, bcastHandler);
+  SerialRuntime *runtime = InitRuntime(serialId, addressId, broadcastAddressId, buffer, bufferLen, respWriter, slave, useRequestId, bcastHandler);
 
   runtime->commandsSeparator = multiCommandSeparator;
   runtime->commandDefinitions = aCommandDefinitions;
@@ -428,6 +445,13 @@ bool parseCommand(SerialRuntime *runtime)
   if (commandFound && strlen(currentCommandDefinition.pattern) > 0)
   {
     char *token = strtok(NULL, " ");
+    if (runtime->withRequestId) {
+      if (token == 0) {
+        return false;
+      }
+      requestId = atoi(token);
+      token = strtok(NULL, " ");
+    }
     int paramIndex = 0;
     while (token != 0 && paramIndex < currentCommandDefinition.paramsCount && paramIndex < INPUT_COMMAND_MAX_PARAMS)
     {

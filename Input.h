@@ -20,6 +20,7 @@ enum SerialId
 class CommandParams
 {
 public:
+  int getRequestId();
   char *getParamAsString(byte paramIndex);
   int getParamAsInt(byte paramIndex);
   long getParamAsLongInt(byte paramIndex);
@@ -96,6 +97,7 @@ public:
   Input &broadcastHandler(InputBroadcastHandler aBroadcastHandler);
   Input &responseWriter(ResponseWriter *aWriter);
   Input &isSlave();
+  Input &withRequestId();
 
   void begin(long baud, const InputCommand *aCommandDefinitions);
   void begin(long baud, char multiCommandSeparator, const InputCommand *aCommandDefinitions);
@@ -109,6 +111,7 @@ private:
   char *buffer;
   int bufferLen;
   bool slave;
+  bool useRequestId;
   ResponseWriter defaultWriter;
   ResponseWriter *respWriter;
   InputBroadcastHandler bcastHandler;
