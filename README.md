@@ -119,7 +119,14 @@ input.address(ADDRESS);
 
 If an address is configured, all incoming commands should have an address string before parameters.
 
-Last, you need to start the library by calling:
+**Specifying if you will need request id handling**
+
+```c++
+input.withRequestId(REQUEST_ID);
+```
+By calling above function, you will make explicit that all input commands will specify a request id (integer), right after the command op code. This request Id will be injected to the response writer on every command execution and also will be available in the params object (by calling the getRequestId() method).
+
+**Starting the library by calling begin**
 
 ```c++
 input.begin(bauds, commandDefinitions);
