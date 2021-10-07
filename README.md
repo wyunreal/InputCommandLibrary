@@ -11,7 +11,7 @@ Each line on the Serial interface will be interpreted as one or more commands, e
 ```
 
 -   **CommandOpCode**: string identifying the command. Command identifier is case sensitive and can contain any "small" amount of chars. **Small** means 19 or less chars.
--   **address**: required only if the Input instance is not Slave and an address is configured.
+-   **address**: required only if an address is configured in the Input instance.
 -   **params**: list of param values (limited to 5 per command), params can be any string, int or float value.
 -   **ParamsSeparator**: Whitespaces will be used as opCode and params separator.
 
@@ -22,7 +22,6 @@ If using multi command lines, each line will be interpreted as:
 ```
 
 -   **CommandOpCode**: string identifying the command. Command identifier is case sensitive and can contain any "small" amount of chars. **Small** means 19 or less chars.
--   **address**: required only if the Input instance is not Slave and an address is configured.
 -   **params**: list of param values (limited to 5 per command), params can be any string, int or float value.
 -   **ParamsSeparator**: Whitespaces will be used as opCode and params separator.
 -   **SeparatorChar**: A char used as commands separator (see ussage section to know how to enable multi command lines).

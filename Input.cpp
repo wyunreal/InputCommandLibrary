@@ -1,23 +1,6 @@
 #include "Input.h"
 #include <Arduino.h>
 
-struct SerialRuntime
-{
-  char *addressId = NULL;
-  char *broadcastAddressId = NULL;
-  char commandsSeparator = 0;
-  const InputCommand *commandDefinitions;
-  int commandsMaxLength;
-  int inputBufferIndex = 0;
-  char *serialCommandBuffer;
-  ResponseWriter *respWriter;
-  bool isSlave = false;
-  bool withRequestId = false;
-  bool commandIsBroadcast;
-  int commandLen = 0;
-  InputBroadcastHandler broadcastHandler;
-};
-
 struct SerialRuntimes
 {
   SerialRuntime *serial0;
@@ -485,7 +468,7 @@ bool parseCommand(SerialRuntime *runtime)
   return false;
 }
 
-bool processInputChar(char inChar, SerialRuntime *runtime, HardwareSerial &serial)
+bool processInputChar(char inChar, SerialRuntime *runtime, Stream *serial)
 {
   if (runtime->inputBufferIndex >= runtime->commandsMaxLength)
   {
@@ -504,7 +487,7 @@ bool processInputChar(char inChar, SerialRuntime *runtime, HardwareSerial &seria
       bool commandParsed = parseCommand(runtime);
       if (commandParsed)
       {
-        runtime->respWriter->setStream(&serial);
+        runtime->respWriter->setStream(serial);
         if (runtime->isSlave)
         {
           runtime->respWriter->setAddressFromParams(paramsReader, currentCommandDefinition.paramsCount);
@@ -530,7 +513,7 @@ void handleSerialEvent(SerialRuntime *runtime, HardwareSerial &serialInstance)
   while (serialInstance.available())
   {
     char inChar = (char)serialInstance.read();
-    bufferIsFull = processInputChar(inChar, runtime, serialInstance);
+    bufferIsFull = processInputChar(inChar, runtime, &serialInstance);
     if (bufferIsFull || inChar == 13)
     {
       return;

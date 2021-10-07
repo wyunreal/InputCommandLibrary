@@ -120,4 +120,23 @@ private:
   InputBroadcastHandler bcastHandler;
 };
 
+struct SerialRuntime
+{
+  char *addressId = NULL;
+  char *broadcastAddressId = NULL;
+  char commandsSeparator = 0;
+  const InputCommand *commandDefinitions;
+  int commandsMaxLength;
+  int inputBufferIndex = 0;
+  char *serialCommandBuffer;
+  ResponseWriter *respWriter;
+  bool isSlave = false;
+  bool withRequestId = false;
+  bool commandIsBroadcast;
+  int commandLen = 0;
+  InputBroadcastHandler broadcastHandler;
+};
+
+bool processInputChar(char inChar, SerialRuntime *runtime, Stream *serial = NULL);
+
 #endif
