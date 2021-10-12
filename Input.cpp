@@ -468,7 +468,7 @@ bool parseCommand(SerialRuntime *runtime)
   return false;
 }
 
-bool processInputChar(char inChar, SerialRuntime *runtime, Stream *serial)
+bool processInputChar(char inChar, SerialRuntime *runtime, Print *serial)
 {
   if (runtime->inputBufferIndex >= runtime->commandsMaxLength)
   {

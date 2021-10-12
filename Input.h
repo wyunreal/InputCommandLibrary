@@ -27,7 +27,7 @@ public:
   float getParamAsFloat(byte paramIndex);
 };
 
-class ResponseWriter
+class ResponseWriter: public Print
 {
 public:
   ResponseWriter();
@@ -39,6 +39,8 @@ public:
   char *getAddress() { return address; }
   void setRequestId(int aRequestId) { requestId = aRequestId; }
   int getRequestId() { return requestId; }
+  void setConnectionId(int aConnectionId) { connectionId = aConnectionId; }
+  int getConnectionId() { return connectionId; }
 
   virtual size_t write(uint8_t);
 
@@ -64,13 +66,15 @@ public:
 
   virtual size_t println(void);
 
-protected:
   bool isNewLine();
+
+protected:
+  bool newLineWritten;
 
 private:
   Print *printer;
-  bool newLineWritten;
   char *address;
+  uint8_t connectionId;
   int requestId;
 };
 
@@ -137,6 +141,6 @@ struct SerialRuntime
   InputBroadcastHandler broadcastHandler;
 };
 
-bool processInputChar(char inChar, SerialRuntime *runtime, Stream *serial = NULL);
+bool processInputChar(char inChar, SerialRuntime *runtime, Print *serial = NULL);
 
 #endif
