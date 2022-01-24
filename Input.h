@@ -4,7 +4,7 @@
 #include "Arduino.h"
 
 #define OP_CODE_MAX_LEN 20
-#define INPUT_COMMAND_MAX_PARAMS 5
+#define INPUT_COMMAND_MAX_PARAMS 10
 #define DEFAULT_COMMANDS_MAX_LENGTH 20
 
 typedef void (*InputBroadcastHandler)(char *command);
