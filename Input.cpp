@@ -103,6 +103,7 @@ ResponseWriter::ResponseWriter()
 {
   printer = NULL;
   newLineWritten = true;
+  requestId = NULL;
 }
 
 Print *ResponseWriter::getStream()
@@ -493,13 +494,17 @@ bool processInputChar(char inChar, SerialRuntime *runtime, Print *serial)
           runtime->respWriter->setAddressFromParams(paramsReader, currentCommandDefinition.paramsCount);
         }
         runtime->respWriter->setRequestId(requestId);
-        currentCommandDefinition.commandFunction(paramsReader, *runtime->respWriter);
+        if (strlen(currentCommandDefinition.pattern) != 0 || !runtime->commandIsBroadcast)
+        {
+          currentCommandDefinition.commandFunction(paramsReader, *runtime->respWriter);
+        }
         if (runtime->commandIsBroadcast and runtime->broadcastHandler != NULL)
         {
           concatTokens(runtime->serialCommandBuffer, runtime->commandLen, 2);
           runtime->broadcastHandler(runtime->serialCommandBuffer);
         }
         memset(runtime->serialCommandBuffer, 0, runtime->commandsMaxLength + 1);
+        runtime->respWriter->setRequestId(NULL);
       }
       runtime->inputBufferIndex = 0;
     }
